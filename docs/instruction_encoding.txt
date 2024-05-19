@@ -1,0 +1,65 @@
+add
+	vec, vec   -> vec
+sub
+	vec, vec   -> vec
+normalize
+	vec        -> vec
+
+scalar multiply
+	vec, float -> vec
+scalar divide
+	vec, float -> vec
+
+magnitude
+	vec        -> float
+magnitude squared
+	vec        -> float
+dot product
+	vec, vec   -> float
+
+
+
+
+
+registers
+	16 vector registers
+	16 float registers
+	
+	registers 0-14 normal
+	register 15 = zero register (always reads as 0)
+
+
+agg_oo_src1_src2_dest
+
+agg = 0xx : arithmetic inst
+agg = 100 : add/sub scalar immediate
+
+000_oo_vvvv_vvvv_vvvv
+	add
+		dest = src1 + src2
+	sub
+		dest = src1 - src2
+	normalize*
+		dest = src1 / |src1|
+
+001_oo_vvvv_vvvv_ssss
+	magnitude*
+		dest = |src1|
+	magnitude squared*
+		dest = |src1|^2
+	dot product
+		dest = src1 . src2
+
+010_oo_vvvv_ssss_vvvv
+	scalar multiply
+		dest = src1 * src2
+	scalar divide
+		dest = src1 / src2
+
+011_oo_vvvv_ssss_ssss
+	sqrt**
+		dest = sqrt(src2)
+
+
+*src2 unused
+**src1 unused
