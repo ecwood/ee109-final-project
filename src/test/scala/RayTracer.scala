@@ -79,233 +79,335 @@ import spatial.dsl._
 
       // Go through each instruction (pipeline this later)
       Foreach (0 until N) { i =>
-        val current_inst = inst_sram(i)
-        val agg = current_inst.agg
-        val oo = current_inst.oo
-        val src1 = current_inst.src1
-        val src2 = current_inst.src2
-        val dest = current_inst.dest
+        Sequential {
+          val current_inst = inst_sram(i)
+          val agg = current_inst.agg
+          val oo = current_inst.oo
+          val src1 = current_inst.src1
+          val src2 = current_inst.src2
+          val dest = current_inst.dest
 
-        // Decode (into both scalar and vector, just in case)
-        // Source 1
-        if (src1 == 0) {
-          vec_src1_val = vec_reg0
-          sca_src1_val = sca_reg0
-        }
-        if (src1 == 1) {
-          vec_src1_val = vec_reg1
-          sca_src1_val = sca_reg1
-        }
-        if (src1 == 2) {
-          vec_src1_val = vec_reg2
-          sca_src1_val = sca_reg2
-        }
-        if (src1 == 3) {
-          vec_src1_val = vec_reg3
-          sca_src1_val = sca_reg3
-        }
-        if (src1 == 4) {
-          vec_src1_val = vec_reg4
-          sca_src1_val = sca_reg4
-        }
-        if (src1 == 5) {
-          vec_src1_val = vec_reg5
-          sca_src1_val = sca_reg5
-        }
-        if (src1 == 6) {
-          vec_src1_val = vec_reg6
-          sca_src1_val = sca_reg6
-        }
-        if (src1 == 7) {
-          vec_src1_val = vec_reg7
-          sca_src1_val = sca_reg7
-        }
-        if (src1 == 8) {
-          vec_src1_val = vec_reg8
-          sca_src1_val = sca_reg8
-        }
-        if (src1 == 9) {
-          vec_src1_val = vec_reg9
-          sca_src1_val = sca_reg9
-        }
-        if (src1 == 10) {
-          vec_src1_val = vec_reg10
-          sca_src1_val = sca_reg10
-        }
-        if (src1 == 11) {
-          vec_src1_val = vec_reg11
-          sca_src1_val = sca_reg11
-        }
-        if (src1 == 12) {
-          vec_src1_val = vec_reg12
-          sca_src1_val = sca_reg12
-        }
-        if (src1 == 13) {
-          vec_src1_val = vec_reg13
-          sca_src1_val = sca_reg13
-        }
-        if (src1 == 14) {
-          vec_src1_val = vec_reg14
-          sca_src1_val = sca_reg14
-        }
-        if (src1 == 15) {
-          vec_src1_val = vec_reg15
-          sca_src1_val = sca_reg15
-        }
+          // Decode (into both scalar and vector, just in case)
+          // Source 1
+          if (src1 == 0) {
+            vec_src1_val = vec_reg0
+            sca_src1_val = sca_reg0
+          }
+          if (src1 == 1) {
+            vec_src1_val = vec_reg1
+            sca_src1_val = sca_reg1
+          }
+          if (src1 == 2) {
+            vec_src1_val = vec_reg2
+            sca_src1_val = sca_reg2
+          }
+          if (src1 == 3) {
+            vec_src1_val = vec_reg3
+            sca_src1_val = sca_reg3
+          }
+          if (src1 == 4) {
+            vec_src1_val = vec_reg4
+            sca_src1_val = sca_reg4
+          }
+          if (src1 == 5) {
+            vec_src1_val = vec_reg5
+            sca_src1_val = sca_reg5
+          }
+          if (src1 == 6) {
+            vec_src1_val = vec_reg6
+            sca_src1_val = sca_reg6
+          }
+          if (src1 == 7) {
+            vec_src1_val = vec_reg7
+            sca_src1_val = sca_reg7
+          }
+          if (src1 == 8) {
+            vec_src1_val = vec_reg8
+            sca_src1_val = sca_reg8
+          }
+          if (src1 == 9) {
+            vec_src1_val = vec_reg9
+            sca_src1_val = sca_reg9
+          }
+          if (src1 == 10) {
+            vec_src1_val = vec_reg10
+            sca_src1_val = sca_reg10
+          }
+          if (src1 == 11) {
+            vec_src1_val = vec_reg11
+            sca_src1_val = sca_reg11
+          }
+          if (src1 == 12) {
+            vec_src1_val = vec_reg12
+            sca_src1_val = sca_reg12
+          }
+          if (src1 == 13) {
+            vec_src1_val = vec_reg13
+            sca_src1_val = sca_reg13
+          }
+          if (src1 == 14) {
+            vec_src1_val = vec_reg14
+            sca_src1_val = sca_reg14
+          }
+          if (src1 == 15) {
+            vec_src1_val = vec_reg15
+            sca_src1_val = sca_reg15
+          }
 
-        // Source 2
-        if (src2 == 0) {
-          vec_src2_val = vec_reg0
-          sca_src2_val = sca_reg0
-        }
-        if (src2 == 1) {
-          vec_src2_val = vec_reg1
-          sca_src2_val = sca_reg1
-        }
-        if (src2 == 2) {
-          vec_src2_val = vec_reg2
-          sca_src2_val = sca_reg2
-        }
-        if (src2 == 3) {
-          vec_src2_val = vec_reg3
-          sca_src2_val = sca_reg3
-        }
-        if (src2 == 4) {
-          vec_src2_val = vec_reg4
-          sca_src2_val = sca_reg4
-        }
-        if (src2 == 5) {
-          vec_src2_val = vec_reg5
-          sca_src2_val = sca_reg5
-        }
-        if (src2 == 6) {
-          vec_src2_val = vec_reg6
-          sca_src2_val = sca_reg6
-        }
-        if (src2 == 7) {
-          vec_src2_val = vec_reg7
-          sca_src2_val = sca_reg7
-        }
-        if (src2 == 8) {
-          vec_src2_val = vec_reg8
-          sca_src2_val = sca_reg8
-        }
-        if (src2 == 9) {
-          vec_src2_val = vec_reg9
-          sca_src2_val = sca_reg9
-        }
-        if (src2 == 10) {
-          vec_src2_val = vec_reg10
-          sca_src2_val = sca_reg10
-        }
-        if (src2 == 11) {
-          vec_src2_val = vec_reg11
-          sca_src2_val = sca_reg11
-        }
-        if (src2 == 12) {
-          vec_src2_val = vec_reg12
-          sca_src2_val = sca_reg12
-        }
-        if (src2 == 13) {
-          vec_src2_val = vec_reg13
-          sca_src2_val = sca_reg13
-        }
-        if (src2 == 14) {
-          vec_src2_val = vec_reg14
-          sca_src2_val = sca_reg14
-        }
-        if (src2 == 15) {
-          vec_src2_val = vec_reg15
-          sca_src2_val = sca_reg15
-        }
+          // Source 2
+          if (src2 == 0) {
+            vec_src2_val = vec_reg0
+            sca_src2_val = sca_reg0
+          }
+          if (src2 == 1) {
+            vec_src2_val = vec_reg1
+            sca_src2_val = sca_reg1
+          }
+          if (src2 == 2) {
+            vec_src2_val = vec_reg2
+            sca_src2_val = sca_reg2
+          }
+          if (src2 == 3) {
+            vec_src2_val = vec_reg3
+            sca_src2_val = sca_reg3
+          }
+          if (src2 == 4) {
+            vec_src2_val = vec_reg4
+            sca_src2_val = sca_reg4
+          }
+          if (src2 == 5) {
+            vec_src2_val = vec_reg5
+            sca_src2_val = sca_reg5
+          }
+          if (src2 == 6) {
+            vec_src2_val = vec_reg6
+            sca_src2_val = sca_reg6
+          }
+          if (src2 == 7) {
+            vec_src2_val = vec_reg7
+            sca_src2_val = sca_reg7
+          }
+          if (src2 == 8) {
+            vec_src2_val = vec_reg8
+            sca_src2_val = sca_reg8
+          }
+          if (src2 == 9) {
+            vec_src2_val = vec_reg9
+            sca_src2_val = sca_reg9
+          }
+          if (src2 == 10) {
+            vec_src2_val = vec_reg10
+            sca_src2_val = sca_reg10
+          }
+          if (src2 == 11) {
+            vec_src2_val = vec_reg11
+            sca_src2_val = sca_reg11
+          }
+          if (src2 == 12) {
+            vec_src2_val = vec_reg12
+            sca_src2_val = sca_reg12
+          }
+          if (src2 == 13) {
+            vec_src2_val = vec_reg13
+            sca_src2_val = sca_reg13
+          }
+          if (src2 == 14) {
+            vec_src2_val = vec_reg14
+            sca_src2_val = sca_reg14
+          }
+          if (src2 == 15) {
+            vec_src2_val = vec_reg15
+            sca_src2_val = sca_reg15
+          }
 
-        // Destination
+          // Destination
+          if (dest == 0) {
+            vec_dest_val = vec_reg0
+            sca_dest_val = sca_reg0
+          }
+          if (dest == 1) {
+            vec_dest_val = vec_reg1
+            sca_dest_val = sca_reg1
+          }
+          if (dest == 2) {
+            vec_dest_val = vec_reg2
+            sca_dest_val = sca_reg2
+          }
+          if (dest == 3) {
+            vec_dest_val = vec_reg3
+            sca_dest_val = sca_reg3
+          }
+          if (dest == 4) {
+            vec_dest_val = vec_reg4
+            sca_dest_val = sca_reg4
+          }
+          if (dest == 5) {
+            vec_dest_val = vec_reg5
+            sca_dest_val = sca_reg5
+          }
+          if (dest == 6) {
+            vec_dest_val = vec_reg6
+            sca_dest_val = sca_reg6
+          }
+          if (dest == 7) {
+            vec_dest_val = vec_reg7
+            sca_dest_val = sca_reg7
+          }
+          if (dest == 8) {
+            vec_dest_val = vec_reg8
+            sca_dest_val = sca_reg8
+          }
+          if (dest == 9) {
+            vec_dest_val = vec_reg9
+            sca_dest_val = sca_reg9
+          }
+          if (dest == 10) {
+            vec_dest_val = vec_reg10
+            sca_dest_val = sca_reg10
+          }
+          if (dest == 11) {
+            vec_dest_val = vec_reg11
+            sca_dest_val = sca_reg11
+          }
+          if (dest == 12) {
+            vec_dest_val = vec_reg12
+            sca_dest_val = sca_reg12
+          }
+          if (dest == 13) {
+            vec_dest_val = vec_reg13
+            sca_dest_val = sca_reg13
+          }
+          if (dest == 14) {
+            vec_dest_val = vec_reg14
+            sca_dest_val = sca_reg14
+          }
+          if (dest == 15) {
+            vec_dest_val = vec_reg15
+            sca_dest_val = sca_reg15
+          }
+
+          // add
+          if (agg == 0 && oo == 0) {
+            vec_dest_val.elem1 = vec_src1_val.elem1 + vec_src2_val.elem1
+            vec_dest_val.elem2 = vec_src1_val.elem2 + vec_src2_val.elem2
+            vec_dest_val.elem3 = vec_src1_val.elem3 + vec_src2_val.elem3
+          }
+
+          // subtract
+          if (agg == 0 && oo == 1) {
+            vec_dest_val.elem1 = vec_src1_val.elem1 - vec_src2_val.elem1
+            vec_dest_val.elem2 = vec_src1_val.elem2 - vec_src2_val.elem2
+            vec_dest_val.elem3 = vec_src1_val.elem3 - vec_src2_val.elem3
+          }
+
+          // normalize
+          if (agg == 0 && oo == 2) {
+            val magnitude = sqrt(vec_src1_val.elem1 * vec_src1_val.elem1 + vec_src1_val.elem2 * vec_src1_val.elem2 + vec_src1_val.elem3 * vec_src1_val.elem3)
+            vec_dest_val.elem1 = vec_src1_val.elem1 / magnitude
+            vec_dest_val.elem2 = vec_src1_val.elem2 / magnitude
+            vec_dest_val.elem3 = vec_src1_val.elem3 / magnitude
+          }
+
+          // magnitude
+          if (agg == 1 && oo == 0) {
+            sca_dest_val = sqrt(vec_src1_val.elem1 * vec_src1_val.elem1 + vec_src1_val.elem2 * vec_src1_val.elem2 + vec_src1_val.elem3 * vec_src1_val.elem3)
+          }
+
+          // 
+          if (agg == 1 && oo == 1) {
+            sca_dest_val = vec_src1_val.elem1 * vec_src1_val.elem1 + vec_src1_val.elem2 * vec_src1_val.elem2 + vec_src1_val.elem3 * vec_src1_val.elem3
+          }
+
+          // dot product
+          if (agg == 1 && oo == 2) {
+            sca_dest_val = vec_src1_val.elem1 * vec_src2_val.elem1 + vec_src1_val.elem2 * vec_src2_val.elem2 + vec_src1_val.elem3 * vec_src2_val.elem3
+          }
+
+          // scalar multiply
+          if (agg == 2 && oo == 0) {
+            vec_dest_val.elem1 = vec_src1_val.elem1 * sca_src2_val
+            vec_dest_val.elem2 = vec_src1_val.elem2 * sca_src2_val
+            vec_dest_val.elem3 = vec_src1_val.elem3 * sca_src2_val
+          }
+
+          // scalar divide
+          if (agg == 2 && oo == 1) {
+            vec_dest_val.elem1 = vec_src1_val.elem1 / sca_src2_val
+            vec_dest_val.elem2 = vec_src1_val.elem2 / sca_src2_val
+            vec_dest_val.elem3 = vec_src1_val.elem3 / sca_src2_val
+          }
+
+          // sqrt
+          if (agg == 3 && oo == 0) {
+            sca_dest_val = sqrt(sca_src2_val)
+          }
+
+          // Store the results
         if (dest == 0) {
-          vec_dest_val = vec_reg0
-          sca_dest_val = sca_reg0
+          vec_reg0 = vec_dest_val
+          sca_reg0 = sca_dest_val
         }
         if (dest == 1) {
-          vec_dest_val = vec_reg1
-          sca_dest_val = sca_reg1
+          vec_reg1 = vec_dest_val
+          sca_reg1 = sca_dest_val
         }
         if (dest == 2) {
-          vec_dest_val = vec_reg2
-          sca_dest_val = sca_reg2
+          vec_reg2 = vec_dest_val
+          sca_reg2 = sca_dest_val
         }
         if (dest == 3) {
-          vec_dest_val = vec_reg3
-          sca_dest_val = sca_reg3
+          vec_reg3 = vec_dest_val
+          sca_reg3 = sca_dest_val
         }
         if (dest == 4) {
-          vec_dest_val = vec_reg4
-          sca_dest_val = sca_reg4
+          vec_reg4 = vec_dest_val
+          sca_reg4 = sca_dest_val
         }
         if (dest == 5) {
-          vec_dest_val = vec_reg5
-          sca_dest_val = sca_reg5
+          vec_reg5 = vec_dest_val
+          sca_reg5 = sca_dest_val
         }
         if (dest == 6) {
-          vec_dest_val = vec_reg6
-          sca_dest_val = sca_reg6
+          vec_reg6 = vec_dest_val
+          sca_reg6 = sca_dest_val
         }
         if (dest == 7) {
-          vec_dest_val = vec_reg7
-          sca_dest_val = sca_reg7
+          vec_reg7 = vec_dest_val
+          sca_reg7 = sca_dest_val
         }
         if (dest == 8) {
-          vec_dest_val = vec_reg8
-          sca_dest_val = sca_reg8
+          vec_reg8 = vec_dest_val
+          sca_reg8 = sca_dest_val
         }
         if (dest == 9) {
-          vec_dest_val = vec_reg9
-          sca_dest_val = sca_reg9
+          vec_reg9 = vec_dest_val
+          sca_reg9 = sca_dest_val
         }
         if (dest == 10) {
-          vec_dest_val = vec_reg10
-          sca_dest_val = sca_reg10
+          vec_reg10 = vec_dest_val
+          sca_reg10 = sca_dest_val
         }
         if (dest == 11) {
-          vec_dest_val = vec_reg11
-          sca_dest_val = sca_reg11
+          vec_reg11 = vec_dest_val
+          sca_reg11 = sca_dest_val
         }
         if (dest == 12) {
-          vec_dest_val = vec_reg12
-          sca_dest_val = sca_reg12
+          vec_reg12 = vec_dest_val
+          sca_reg12 = sca_dest_val
         }
         if (dest == 13) {
-          vec_dest_val = vec_reg13
-          sca_dest_val = sca_reg13
+          vec_reg13 = vec_dest_val
+          sca_reg13 = sca_dest_val
         }
         if (dest == 14) {
-          vec_dest_val = vec_reg14
-          sca_dest_val = sca_reg14
+          vec_reg14 = vec_dest_val
+          sca_reg14 = sca_dest_val
         }
         if (dest == 15) {
-          vec_dest_val = vec_reg15
-          sca_dest_val = sca_reg15
+          vec_reg15 = vec_dest_val
+          sca_reg15 = sca_dest_val
         }
-
-        // add
-        if (agg == 0 && oo == 0) {
-          vec_dest_val.elem1 = vec_src1_val.elem1 + vec_src2_val.elem1
-          vec_dest_val.elem2 = vec_src1_val.elem2 + vec_src2_val.elem2
-          vec_dest_val.elem3 = vec_src1_val.elem3 + vec_src2_val.elem3
         }
-
-        // subtract
-        if (agg == 0 && oo == 1) {
-          vec_dest_val.elem1 = vec_src1_val.elem1 - vec_src2_val.elem1
-          vec_dest_val.elem2 = vec_src1_val.elem2 - vec_src2_val.elem2
-          vec_dest_val.elem3 = vec_src1_val.elem3 - vec_src2_val.elem3
-        }
-
-        if (agg == 0 && oo == 2) {
-          val magnitude = sqrt(vec_src1_val.elem1 * vec_src1_val.elem1 + vec_src1_val.elem2 * vec_src1_val.elem2 + vec_src1_val.elem3 * vec_src1_val.elem3)
-          vec_dest_val.elem1 = vec_src1_val.elem1 / magnitude
-          vec_dest_val.elem2 = vec_src1_val.elem2 / magnitude
-          vec_dest_val.elem3 = vec_src1_val.elem3 / magnitude
-        }
-        
       }
     }
 
