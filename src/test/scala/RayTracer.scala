@@ -1,18 +1,21 @@
 import spatial.dsl._
 
 @spatial class RayTracer extends SpatialTest {
+  @struct class Instruction(
+    key: FixPt[FALSE, _5, _0],
+    src1: FixPt[FALSE, _4, _0],
+    src2: FixPt[FALSE, _4, _0],
+    dest: FixPt[FALSE, _4, _0]
+  )
 
+  val N = 1024
 
   def main(args: Array[String]): Unit = {
-    val width = 400
-    val height = 400
-    val image = (0::width, 0::height){(i,j) => 0}
+    val inst_host = loadCSV1D[Instruction](s"$DATA/instructions.csv")
+    val inst_dram = DRAM[Instruction](N)
 
-    val img = DRAM[T](width, height)
-    val imgOut = DRAM[T](width, height)
+    setMem(inst_dram, inst_host)
 
-    setMem(img, image)
-    
     Accel {
       
       
