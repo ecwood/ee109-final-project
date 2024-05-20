@@ -29,12 +29,12 @@ registers
 	register 15 = zero register (always reads as 0)
 
 
-agg_oo_src1_src2_dest
+a_gg_oo_src1_src2_dest
 
-agg = 0xx : arithmetic inst
-agg = 100 : add/sub scalar immediate
+a_gg = 0xx : arithmetic inst
+a_gg = 1xx : add scalar immediate
 
-000_oo_vvvv_vvvv_vvvv
+0_00_oo_vvvv_vvvv_vvvv
 	add
 		dest = src1 + src2
 	sub
@@ -42,7 +42,7 @@ agg = 100 : add/sub scalar immediate
 	normalize*
 		dest = src1 / |src1|
 
-001_oo_vvvv_vvvv_ssss
+0_01_oo_vvvv_vvvv_ssss
 	magnitude*
 		dest = |src1|
 	magnitude squared*
@@ -50,15 +50,28 @@ agg = 100 : add/sub scalar immediate
 	dot product
 		dest = src1 . src2
 
-010_oo_vvvv_ssss_vvvv
+0_10_oo_vvvv_ssss_vvvv
 	scalar multiply
 		dest = src1 * src2
 	scalar divide
 		dest = src1 / src2
 
-011_oo_vvvv_ssss_ssss
+0_11_oo_vvvv_ssss_ssss
 	sqrt**
 		dest = sqrt(src2)
+
+
+1_gg_II_IIII_ssss_cccc
+	for         00: cccc = scalar reg
+	for 01, 10, 11: cccc = vector reg
+	00: addi
+		dest = src2 + (sign extend) 6'bIIIIII
+	01: vaddi.x
+		dest.x = src2 + (sign extend) 6'bIIIIII
+	10: vaddi.y
+		dest.y = src2 + (sign extend) 6'bIIIIII
+	11: vaddi.z
+		dest.z = src2 + (sign extend) 6'bIIIIII
 
 
 *src2 unused
