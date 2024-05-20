@@ -72,6 +72,11 @@ import spatial.dsl._
       val vec_src2_val = Reg[Vector3]
       val sca_src2_val = Reg[RegType]
 
+      // Also create registers for saving current destination register values (so that you can store both without
+      // checking which one should be stored)
+      val vec_dest_val = Reg[Vector3]
+      val sca_dest_val = Reg[RegType]
+
       // Go through each instruction (pipeline this later)
       Foreach (0 until N) { i =>
         val current_inst = inst_sram(i)
@@ -214,9 +219,91 @@ import spatial.dsl._
           sca_src2_val = sca_reg15
         }
 
+        // Destination
+        if (dest == 0) {
+          vec_dest_val = vec_reg0
+          sca_dest_val = sca_reg0
+        }
+        if (dest == 1) {
+          vec_dest_val = vec_reg1
+          sca_dest_val = sca_reg1
+        }
+        if (dest == 2) {
+          vec_dest_val = vec_reg2
+          sca_dest_val = sca_reg2
+        }
+        if (dest == 3) {
+          vec_dest_val = vec_reg3
+          sca_dest_val = sca_reg3
+        }
+        if (dest == 4) {
+          vec_dest_val = vec_reg4
+          sca_dest_val = sca_reg4
+        }
+        if (dest == 5) {
+          vec_dest_val = vec_reg5
+          sca_dest_val = sca_reg5
+        }
+        if (dest == 6) {
+          vec_dest_val = vec_reg6
+          sca_dest_val = sca_reg6
+        }
+        if (dest == 7) {
+          vec_dest_val = vec_reg7
+          sca_dest_val = sca_reg7
+        }
+        if (dest == 8) {
+          vec_dest_val = vec_reg8
+          sca_dest_val = sca_reg8
+        }
+        if (dest == 9) {
+          vec_dest_val = vec_reg9
+          sca_dest_val = sca_reg9
+        }
+        if (dest == 10) {
+          vec_dest_val = vec_reg10
+          sca_dest_val = sca_reg10
+        }
+        if (dest == 11) {
+          vec_dest_val = vec_reg11
+          sca_dest_val = sca_reg11
+        }
+        if (dest == 12) {
+          vec_dest_val = vec_reg12
+          sca_dest_val = sca_reg12
+        }
+        if (dest == 13) {
+          vec_dest_val = vec_reg13
+          sca_dest_val = sca_reg13
+        }
+        if (dest == 14) {
+          vec_dest_val = vec_reg14
+          sca_dest_val = sca_reg14
+        }
+        if (dest == 15) {
+          vec_dest_val = vec_reg15
+          sca_dest_val = sca_reg15
+        }
+
         // add
         if (agg == 0 && oo == 0) {
-          
+          vec_dest_val.elem1 = vec_src1_val.elem1 + vec_src2_val.elem1
+          vec_dest_val.elem2 = vec_src1_val.elem2 + vec_src2_val.elem2
+          vec_dest_val.elem3 = vec_src1_val.elem3 + vec_src2_val.elem3
+        }
+
+        // subtract
+        if (agg == 0 && oo == 1) {
+          vec_dest_val.elem1 = vec_src1_val.elem1 - vec_src2_val.elem1
+          vec_dest_val.elem2 = vec_src1_val.elem2 - vec_src2_val.elem2
+          vec_dest_val.elem3 = vec_src1_val.elem3 - vec_src2_val.elem3
+        }
+
+        if (agg == 0 && oo == 2) {
+          val magnitude = sqrt(vec_src1_val.elem1 * vec_src1_val.elem1 + vec_src1_val.elem2 * vec_src1_val.elem2 + vec_src1_val.elem3 * vec_src1_val.elem3)
+          vec_dest_val.elem1 = vec_src1_val.elem1 / magnitude
+          vec_dest_val.elem2 = vec_src1_val.elem2 / magnitude
+          vec_dest_val.elem3 = vec_src1_val.elem3 / magnitude
         }
         
       }
