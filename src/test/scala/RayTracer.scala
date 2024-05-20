@@ -4,7 +4,8 @@ import spatial.dsl._
   type RegType = FixPt[FALSE, _16, _0]
 
   @struct class Instruction(
-    agg: FixPt[FALSE, _3, _0],
+    a: FixPt[FALSE, _1, _0],
+    gg: FixPt[FALSE, _2, _0],
     oo: FixPt[FALSE, _2, _0],
     src1: FixPt[FALSE, _4, _0],
     src2: FixPt[FALSE, _4, _0],
@@ -81,11 +82,13 @@ import spatial.dsl._
       Foreach (0 until N) { i =>
         Sequential {
           val current_inst = inst_sram(i)
-          val agg = current_inst.agg
+          val a = current_inst.a
+          val gg = current_inst.gg
           val oo = current_inst.oo
           val src1 = current_inst.src1
           val src2 = current_inst.src2
           val dest = current_inst.dest
+          val imm = src1 + 16 * oo // need all 6 digits, have to shift the oo by 4; TODO: sign extend
 
           // Decode (into both scalar and vector, just in case)
           // Source 1
@@ -287,21 +290,21 @@ import spatial.dsl._
           }
 
           // add
-          if (agg == 0 && oo == 0) {
+          if (a == 0 && gg == 0 && oo == 0) {
             vec_dest_val.elem1 = vec_src1_val.elem1 + vec_src2_val.elem1
             vec_dest_val.elem2 = vec_src1_val.elem2 + vec_src2_val.elem2
             vec_dest_val.elem3 = vec_src1_val.elem3 + vec_src2_val.elem3
           }
 
           // subtract
-          if (agg == 0 && oo == 1) {
+          if (a == 0 && gg == 0 && oo == 1) {
             vec_dest_val.elem1 = vec_src1_val.elem1 - vec_src2_val.elem1
             vec_dest_val.elem2 = vec_src1_val.elem2 - vec_src2_val.elem2
             vec_dest_val.elem3 = vec_src1_val.elem3 - vec_src2_val.elem3
           }
 
           // normalize
-          if (agg == 0 && oo == 2) {
+          if (a == 0 && gg == 0 && oo == 2) {
             val magnitude = sqrt(vec_src1_val.elem1 * vec_src1_val.elem1 + vec_src1_val.elem2 * vec_src1_val.elem2 + vec_src1_val.elem3 * vec_src1_val.elem3)
             vec_dest_val.elem1 = vec_src1_val.elem1 / magnitude
             vec_dest_val.elem2 = vec_src1_val.elem2 / magnitude
@@ -309,37 +312,53 @@ import spatial.dsl._
           }
 
           // magnitude
-          if (agg == 1 && oo == 0) {
+          if (a == 0 && gg == 1 && oo == 0) {
             sca_dest_val = sqrt(vec_src1_val.elem1 * vec_src1_val.elem1 + vec_src1_val.elem2 * vec_src1_val.elem2 + vec_src1_val.elem3 * vec_src1_val.elem3)
           }
 
           // 
-          if (agg == 1 && oo == 1) {
+          if (a == 0 && gg == 1 && oo == 1) {
             sca_dest_val = vec_src1_val.elem1 * vec_src1_val.elem1 + vec_src1_val.elem2 * vec_src1_val.elem2 + vec_src1_val.elem3 * vec_src1_val.elem3
           }
 
           // dot product
-          if (agg == 1 && oo == 2) {
+          if (a == 0 && gg == 1 && oo == 2) {
             sca_dest_val = vec_src1_val.elem1 * vec_src2_val.elem1 + vec_src1_val.elem2 * vec_src2_val.elem2 + vec_src1_val.elem3 * vec_src2_val.elem3
           }
 
           // scalar multiply
-          if (agg == 2 && oo == 0) {
+          if (a == 0 && gg == 2 && oo == 0) {
             vec_dest_val.elem1 = vec_src1_val.elem1 * sca_src2_val
             vec_dest_val.elem2 = vec_src1_val.elem2 * sca_src2_val
             vec_dest_val.elem3 = vec_src1_val.elem3 * sca_src2_val
           }
 
           // scalar divide
-          if (agg == 2 && oo == 1) {
+          if (a == 0 && gg == 2 && oo == 1) {
             vec_dest_val.elem1 = vec_src1_val.elem1 / sca_src2_val
             vec_dest_val.elem2 = vec_src1_val.elem2 / sca_src2_val
             vec_dest_val.elem3 = vec_src1_val.elem3 / sca_src2_val
           }
 
           // sqrt
-          if (agg == 3 && oo == 0) {
+          if (a == 0 && gg == 3 && oo == 0) {
             sca_dest_val = sqrt(sca_src2_val)
+          }
+
+          if (a == 1) {
+            // addi
+            if (gg == 0) {
+              sca_dest_val = sca_src2_val + imm
+            }
+            if (gg == 1) {
+              vec_dest_val.elem1 = sca_src2_val + imm
+            }
+            if (gg == 2) {
+              vec_dest_val.elem2 = sca_src2_val + imm
+            }
+            if (gg == 3) {
+              vec_dest_val.elem2 = sca_src2_val + imm
+            }
           }
 
           // Store the results
