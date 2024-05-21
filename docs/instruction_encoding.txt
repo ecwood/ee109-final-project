@@ -1,26 +1,3 @@
-add
-	vec, vec   -> vec
-sub
-	vec, vec   -> vec
-normalize
-	vec        -> vec
-
-scalar multiply
-	vec, float -> vec
-scalar divide
-	vec, float -> vec
-
-magnitude
-	vec        -> float
-magnitude squared
-	vec        -> float
-dot product
-	vec, vec   -> float
-
-
-
-
-
 registers
 	16 vector registers
 	16 float registers
@@ -36,42 +13,42 @@ a_gg = 1xx : add scalar immediate
 
 0_00_oo_vvvv_vvvv_vvvv
 	add
-		dest = src1 + src2
+		add v1 v2 v3       : v1 = v2 + v3
 	sub
-		dest = src1 - src2
+		sub v1 v2 v3       : v1 = v2 - v3
 	normalize*
-		dest = src1 / |src1|
+		norm v1 v2         : v1 = v2 / |v2|
 
 0_01_oo_vvvv_vvvv_ssss
 	magnitude*
-		dest = |src1|
+		mag r1 v2          : r1 = |v2|
 	magnitude squared*
-		dest = |src1|^2
+		mags r1 v2         : r1 = |v2|^2
 	dot product
-		dest = src1 . src2
+		dot r1 v2 v3       : r1 = v2 . v3
 
 0_10_oo_vvvv_ssss_vvvv
 	scalar multiply
-		dest = src1 * src2
+		smult v1 v2 r3     : v1 = v2 * r3
 	scalar divide
-		dest = src1 / src2
+		sdiv v1 v2 r3      : v1 = v2 / r3
 
 0_11_oo_vvvv_ssss_ssss
 	sqrt**
-		dest = sqrt(src2)
+		sqrt r1 r2         : r1 = sqrt(r2)
 
 
 1_gg_II_IIII_ssss_cccc
 	for         00: cccc = scalar reg
 	for 01, 10, 11: cccc = vector reg
-	00: addi
-		dest = src2 + (sign extend) 6'bIIIIII
-	01: vaddi.x
-		dest.x = src2 + (sign extend) 6'bIIIIII
-	10: vaddi.y
-		dest.y = src2 + (sign extend) 6'bIIIIII
-	11: vaddi.z
-		dest.z = src2 + (sign extend) 6'bIIIIII
+	00: add immediate
+		addi r1 r2 imm     : r1 = r2 + (sign extend) imm
+	01: vector add immediate x
+		vaddi.x v1 r2 imm  : v1.x = r2 + (sign extend) imm
+	10: vector add immediate y
+		vaddi.y v1 r2 imm  : v1.y = r2 + (sign extend) imm
+	11: vector add immediate z
+		vaddi.z v1 r2 imm  : v1.z = r2 + (sign extend) imm
 
 
 *src2 unused
