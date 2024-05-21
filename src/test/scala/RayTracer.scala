@@ -181,5 +181,11 @@ import spatial.dsl._
     }
 
     val result = getMem(out)
+
+    // temporary for basic asm tests
+    val check_val = result(0, 0, 1);
+    assert(check_val.elem1 == 1);
+    assert(check_val.elem1 == 2);
+    assert(check_val.elem1 == 3);
   }
-}  
+}
