@@ -30,16 +30,18 @@ import spatial.dsl._
 
     setMem(inst_dram, inst_host)
 
+    val out = DRAM[Vector3](pixel_rows, pixel_columns, registers)
+
     Accel {
       // Create the registers for each pixel
       val vec_regs = SRAM[Vector3](pixel_rows, pixel_columns, registers)
       val sca_regs = SRAM[RegType](pixel_rows, pixel_columns, registers)
+
+      val inst_sram = SRAM[Instruction](N)
+      inst_sram load inst_dram
+
       Foreach (0 until pixel_rows) { row =>
         Foreach (0 until pixel_columns) { col =>
-          val inst_sram = SRAM[Instruction](N)
-
-          inst_sram load inst_dram
-
           // Create registers for working with the values after they've been decoded
           val vec_src1_val = Reg[Vector3]
           val sca_src1_val = Reg[RegType]
@@ -54,6 +56,13 @@ import spatial.dsl._
           // Go through each instruction (pipeline this later)
           Foreach (0 until N) { i =>
             Sequential {
+              if (dest == 0) {
+                vec_regs(row, col, dest) = Vector3(0, 0, 0)
+                sca_regs(row, col, dest) = 0
+              }
+              if (dest == 1) {
+                vec_regs(row, col, dest) = Vector3(row, col, 0)
+              }
               // Fetch Current Instruction and Parse
               val current_inst = inst_sram(i)
               val a = current_inst.a
@@ -156,13 +165,21 @@ import spatial.dsl._
                 }
               }
 
-              // Store the results
-              vec_regs(row, col, dest) = vec_dest_val
-              sca_regs(row, col, dest) = sca_dest_val
+              // Store the results if it's not the zero register or first vector register
+              if (dest != 0 && dest != 1) {
+                vec_regs(row, col, dest) = vec_dest_val
+              }
+              if (dest != 0) {
+                sca_regs(row, col, dest) = sca_dest_val
+              }
             }
           }
         }
       }
+
+      out store vec_regs
     }
+
+    val result = getMem(out)
   }
-}
+}  
