@@ -31,6 +31,7 @@ vec3 = (7, 3, 10)
 vec4 = (8, 15, 4)
 vec5 = (13, 9, 2)
 vec_zero = (0, 0, 0)
+vec_neg = (-4, 8, -3)
 
 def decimal_to_binary(dec, bits):
 	binary = ["0"] * bits
@@ -57,10 +58,23 @@ def load_vector(vec, reg):
 	instructions = []
 	(x, y, z) = vec
 
-	# First, clear out any existing data by adding the x value with the 0 register
-	instructions.append(generate_imm_test("vaddi.x", x, 0, reg))
-	instructions.append(generate_imm_test("vaddi.y", y, reg, reg))
-	instructions.append(generate_imm_test("vaddi.z", z, reg, reg))
+	# First, clear out any existing data
+	instructions.append(generate_nonimm_binary("add", 0, 0, reg))
+	if x < 0:
+		instructions.append(generate_imm_test("vaddi.x", -1 * x, reg, reg))
+	if y < 0:
+		instructions.append(generate_imm_test("vaddi.y", -1 * y, reg, reg))
+	if z < 0:
+		instructions.append(generate_imm_test("vaddi.z", -1 * z, reg, reg))
+	instructions.append(generate_nonimm_binary("sub", 0, reg, reg))
+
+	if x > 0:
+		instructions.append(generate_imm_test("vaddi.x", x, reg, reg))
+	if y > 0:
+		instructions.append(generate_imm_test("vaddi.y", y, reg, reg))
+	if z > 0:
+		instructions.append(generate_imm_test("vaddi.z", z, reg, reg))
+
 
 	return instructions
 
@@ -126,19 +140,24 @@ def generate_dot_tests():
 	dest = 1
 	instructions = []
 
-	# Load (8, 15, 4) into vector 2
 	instructions += load_vector(vec4, src1)
-
 	instructions += load_vector(vec5, src2)
 
 	instructions.append(generate_nonimm_binary("dot", src1, src2, dest))
 
 	print("Expected Value:", expected_dot(vec4, vec5))
 
+	instructions += load_vector(vec4, src1)
+	instructions += load_vector(vec_neg, src2)
+
+	instructions.append(generate_nonimm_binary("dot", src1, src2, dest))
+
+	print("Expected Value:", expected_dot(vec4, vec_neg))
+
 	return instructions
 
 if __name__ == '__main__':
-	instructions = generate_sub_tests()
+	instructions = generate_dot_tests()
 
 	with open('unit_tests/register_operations.csv', "w+") as output_file:
 		output_file.write("\n".join(instructions))

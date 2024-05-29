@@ -13,7 +13,7 @@ import spatial.dsl._
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
-  val num_instructions = 14
+  val num_instructions = 22
   val num_vec_elements = 3
   val num_bits = 24
   val pixel_rows = 1
@@ -72,7 +72,7 @@ import spatial.dsl._
 
         val normalize_vector = Vector3((vec_reg_src2.x.to[SubType] / (src2_mag.to[SubType])).to[RegType], (vec_reg_src2.y.to[SubType] / src2_mag.to[SubType]).to[RegType], (vec_reg_src2.z.to[SubType] / src2_mag.to[SubType]).to[RegType])
 
-        val dot_product = vec_reg_src1.x * vec_reg_src2.x + vec_reg_src1.y * vec_reg_src2.y + vec_reg_src1.z * vec_reg_src2.z
+        val dot_product = (vec_reg_src1.x.to[SubType] * vec_reg_src2.x.to[SubType] + vec_reg_src1.y.to[SubType] * vec_reg_src2.y.to[SubType] + vec_reg_src1.z.to[SubType] * vec_reg_src2.z.to[SubType]).to[RegType]
 
         // val mult_vscalar = Vector3(vec_reg_src1.x * sca_reg_src2, vec_reg_src1.y * sca_reg_src2, vec_reg_src1.z * sca_reg_src2) 
         // val div_vscalar = Vector3(vec_reg_src1.x / sca_reg_src2, vec_reg_src1.y / sca_reg_src2, vec_reg_src1.z / sca_reg_src2)
