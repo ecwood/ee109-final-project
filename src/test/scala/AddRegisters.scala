@@ -78,14 +78,14 @@ import spatial.dsl._
         val vec_reg_src1_elem3 = vec_reg_src1.elem3
         val vec_reg_src2_elem3 = vec_reg_src2.elem3
 
-        val add_elem1 = vec_reg_src1_elem1 + vec_reg_src2_elem1
-        val add_elem2 = vec_reg_src1_elem2 + vec_reg_src2_elem2
-        val add_elem3 = vec_reg_src1_elem3 + vec_reg_src2_elem3
-        val add_vectors = Vector3(add_elem1, add_elem2, add_elem3)
+        val add_elem1 = vec_reg_src1_elem1.to[Int] + vec_reg_src2_elem1.to[Int]
+        val add_elem2 = vec_reg_src1_elem2.to[Int] + vec_reg_src2_elem2.to[Int]
+        val add_elem3 = vec_reg_src1_elem3.to[Int] + vec_reg_src2_elem3.to[Int]
+        val add_vectors = Vector3(add_elem1.to[RegType], add_elem2.to[RegType], add_elem3.to[RegType])
 
-        val addi_elem1 = immediate + vec_reg_src2_elem1
-        val addi_elem2 = immediate + vec_reg_src2_elem2
-        val addi_elem3 = immediate + vec_reg_src2_elem3
+        val addi_elem1 = immediate.to[Int] + vec_reg_src2_elem1.to[Int]
+        val addi_elem2 = immediate.to[Int] + vec_reg_src2_elem2.to[Int]
+        val addi_elem3 = immediate.to[Int] + vec_reg_src2_elem3.to[Int]
         val addi_vector_x = Vector3(addi_elem1.to[RegType], vec_reg_src2_elem2, vec_reg_src2_elem3)
         val addi_vector_y = Vector3(vec_reg_src2_elem1, addi_elem2.to[RegType], vec_reg_src2_elem3)
         val addi_vector_z = Vector3(vec_reg_src2_elem1, vec_reg_src2_elem2, addi_elem3.to[RegType])
@@ -106,9 +106,10 @@ import spatial.dsl._
     }
 
     val result = getMem(out)
+    val gold = Array[Int] (3, 0, 0, 3, 4, 0, 3, 4, 9, 6, 8, 18)
 
     // temporary for basic asm tests
     printArray(result)
-    assert(0 == 0)
+    assert(result == gold)
   }
 }

@@ -33,8 +33,8 @@ if __name__ == '__main__':
 	lines = []
 
 	lines.append(generate_vadd_test(1, 3, 0, 1)) # Put 3 in vector 1 x
-	lines.append(generate_vadd_test(2, 4, 0, 1)) # Put 4 in vector 1 y
-	lines.append(generate_vadd_test(3, 9, 0, 1)) # Put 9 in vector 1 z
+	lines.append(generate_vadd_test(2, 4, 1, 1)) # Put 4 in vector 1 y
+	lines.append(generate_vadd_test(3, 9, 1, 1)) # Put 9 in vector 1 z
 
 	lines.append(generate_add_test(1, 1, 1)) # Double vector 1
 
