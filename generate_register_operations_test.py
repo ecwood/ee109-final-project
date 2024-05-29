@@ -187,8 +187,22 @@ def generate_addi_tests():
 
 	return instructions
 
+def generate_add_tests():
+	op = "sadd"
+	src1 = 2
+	src2 = 3
+	dest = 1
+	instructions = []
+
+	instructions += load_scalar(9, src1)
+	instructions += load_scalar(14, src2)
+
+	instructions.append(generate_nonimm_binary(op, src1, src2, dest))
+
+	return instructions
+
 if __name__ == '__main__':
-	instructions = generate_addi_tests()
+	instructions = generate_add_tests()
 
 	with open('unit_tests/register_operations.csv', "w+") as output_file:
 		output_file.write("\n".join(instructions))
