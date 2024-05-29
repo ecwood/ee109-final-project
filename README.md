@@ -1,6 +1,6 @@
 Unit Test Number | Completed? | Working Commit | Item
 -- | -- | -- | --
-1 |   |   | Load in CSV with one instruction
+1 |  X |  633900e | Load in CSV with one instruction
 2 |   |   | Output registers
 3 |   |   | Decode add instruction
 4 |   |   | Decode subtract instruction
