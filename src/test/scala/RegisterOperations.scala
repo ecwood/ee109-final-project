@@ -13,7 +13,7 @@ import spatial.dsl._
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
-  val num_instructions = 8
+  val num_instructions = 7
   val num_vec_elements = 3
   val num_bits = 24
   val pixel_rows = 1
@@ -27,7 +27,7 @@ import spatial.dsl._
 
     setMem(inst_dram, inst_host)
 
-    val out = DRAM[RegType](num_instructions, num_vec_elements)
+    val out = DRAM[RegType](num_instructions, num_vec_elements + 1)
 
     Accel {
       // Create the registers for each pixel
@@ -42,7 +42,7 @@ import spatial.dsl._
       val inst_sram = SRAM[InstBit](num_instructions, num_bits)
       inst_sram load inst_dram
 
-      val internal_out = SRAM[RegType](num_instructions, num_vec_elements)
+      val internal_out = SRAM[RegType](num_instructions, num_vec_elements + 1)
 
       val vec_operations = SRAM[Vector3](num_operations)
       val sca_operations = SRAM[RegType](num_operations)
@@ -72,7 +72,7 @@ import spatial.dsl._
 
         val normalize_vector = Vector3((vec_reg_src2.x.to[SubType] / (src2_mag.to[SubType])).to[RegType], (vec_reg_src2.y.to[SubType] / src2_mag.to[SubType]).to[RegType], (vec_reg_src2.z.to[SubType] / src2_mag.to[SubType]).to[RegType])
 
-        // val dot_product = vec_reg_src1.x * vec_reg_src2.x + vec_reg_src1.y * vec_reg_src2.y + vec_reg_src1.z * vec_reg_src2.z
+        val dot_product = vec_reg_src1.x * vec_reg_src2.x + vec_reg_src1.y * vec_reg_src2.y + vec_reg_src1.z * vec_reg_src2.z
 
         // val mult_vscalar = Vector3(vec_reg_src1.x * sca_reg_src2, vec_reg_src1.y * sca_reg_src2, vec_reg_src1.z * sca_reg_src2) 
         // val div_vscalar = Vector3(vec_reg_src1.x / sca_reg_src2, vec_reg_src1.y / sca_reg_src2, vec_reg_src1.z / sca_reg_src2)
@@ -114,7 +114,7 @@ import spatial.dsl._
         sca_operations(2) = sca_regs(dest.to[Int])
         sca_operations(3) = sca_regs(dest.to[Int]) // src2_mag
         sca_operations(4) = sca_regs(dest.to[Int]) // src2_mag2
-        sca_operations(5) = sca_regs(dest.to[Int]) // dot_product
+        sca_operations(5) = dot_product
         sca_operations(6) = sca_regs(dest.to[Int])
         sca_operations(7) = sca_regs(dest.to[Int])
         sca_operations(8) = sca_regs(dest.to[Int]) // sqrt_scalar
@@ -133,6 +133,7 @@ import spatial.dsl._
         internal_out(i, 0) = vec_regs(1).x
         internal_out(i, 1) = vec_regs(1).y
         internal_out(i, 2) = vec_regs(1).z
+        internal_out(i, 3) = sca_regs(1)
       }
 
       out store internal_out
