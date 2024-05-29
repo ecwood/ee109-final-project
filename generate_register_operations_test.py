@@ -72,12 +72,17 @@ def generate_sub_tests():
 
 def generate_norm_tests():
 	op = "norm"
-	src = 1
+	src = 2
 	dest = 1
 	instructions = []
 
 	# First, we'll test with an example that comes out evenly
 	instructions += load_vector(4, 2, 4, src)
+
+	instructions.append(generate_nonimm_binary("norm", 0, src, dest))
+
+	# Now, we'll test with an example that comes out evenly
+	instructions += load_vector(7, 3, 10, src)
 
 	instructions.append(generate_nonimm_binary("norm", 0, src, dest))
 
