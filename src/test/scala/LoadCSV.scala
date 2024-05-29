@@ -2,16 +2,21 @@ import spatial.dsl._
 
 @spatial class LoadCSV extends SpatialTest {
   type RegType = FixPt[FALSE, _16, _0]
-  type Bit = FixPt[FALSE, _1, _0]
   type InstructionFixed = FixPt[FALSE, _24, _0]
+  type InstBit = FixPt[FALSE, _8, _0]
+
+  type OneBitType = FixPt[FALSE, _1, _0]
+  type TwoBitsType = FixPt[FALSE, _2, _0]
+  type RegLabelType = FixPt[FALSE, _4, _0]
 
   @struct class Instruction(
-    a: FixPt[FALSE, _1, _0],
-    gg: FixPt[FALSE, _2, _0],
-    oo: FixPt[FALSE, _2, _0],
-    src1: FixPt[FALSE, _4, _0],
-    src2: FixPt[FALSE, _4, _0],
-    dest: FixPt[FALSE, _4, _0]
+    nothing: FixPt[FALSE, _7, _0],
+    a: OneBitType,
+    gg: TwoBitsType,
+    oo: TwoBitsType,
+    src1: RegLabelType,
+    src2: RegLabelType,
+    dest: RegLabelType
   )
 
   @struct class Vector3(
@@ -21,43 +26,41 @@ import spatial.dsl._
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
-  val num_instructions = 8
-  val instruction_bits = 24
+  val num_instructions = 1
+  val num_bits = 24
   val pixel_rows = 100
   val pixel_columns = 100
   val registers = 16
 
   def main(args: Array[String]): Unit = {
-    val inst_host = loadCSV1D[Bit](s"$DATA/load_csv_test_1.csv")
-    val inst_dram = DRAM[Bit](num_instructions, instruction_bits)
+    val inst_host = loadCSV1D[InstBit](s"$DATA/load_csv_test_1.csv")
+    val inst_dram = DRAM[InstBit](num_instructions, num_bits)
 
     setMem(inst_dram, inst_host)
 
-    val out = DRAM[Int](num_instructions)
+    val out = ArgOut[RegLabelType]
 
     Accel {
-      val inst_sram = SRAM[Bit](num_instructions, instruction_bits)
+      val inst_sram = SRAM[InstBit](num_instructions, num_bits)
       inst_sram load inst_dram
 
-      val out_folder = SRAM[Int](num_instructions)
+      val first_a = inst_sram(0, 7)
+      val first_gg = inst_sram(0, 8) * 2 + inst_sram(0, 9)
+      val first_oo = inst_sram(0, 10) * 2 + inst_sram(0, 11)
+      val first_src1 = inst_sram(0, 12) * 8 + inst_sram(0, 13) * 4 + inst_sram(0, 14) * 2 + inst_sram(0, 15)
+      val first_src2 = inst_sram(0, 16) * 8 + inst_sram(0, 17) * 4 + inst_sram(0, 18) * 2 + inst_sram(0, 19)
+      val first_dest = inst_sram(0, 20) * 8 + inst_sram(0, 21) * 4 + inst_sram(0, 22) * 2 + inst_sram(0, 23)
 
-      Foreach (num_instructions by 1) {j => out_folder(j) = 0}
+      val inst = Instruction(0, first_a.to[OneBitType], first_gg.to[TwoBitsType], first_oo.to[TwoBitsType], first_src1.to[RegLabelType], first_src2.to[RegLabelType], first_dest.to[RegLabelType])
 
-      MemFold(out_folder)(0 until instruction_bits by 1) { i =>
-        val tmp = SRAM[Int](num_instructions)
-        Foreach(num_instructions by 1) {j =>
-          tmp(j) = inst_sram(j, i).to[Int]
-        }
-        tmp
-      }{_+_}
-
-      out store out_folder
+      val inst_src1 = inst.src1
+      out := inst_src1
     }
 
-    val result = getMem(out)
+    val result = getArg(out)
 
     // temporary for basic asm tests
     print(result)
-    // assert(result == [1])
+    assert(result == 6)
   }
 }
