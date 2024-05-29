@@ -75,6 +75,17 @@ def load_vector(vec, reg):
 	if z > 0:
 		instructions.append(generate_imm_test("vaddi.z", z, reg, reg))
 
+	return instructions
+
+def load_scalar(sca, reg):
+	instructions = []
+
+	if sca < 0:
+		instructions.append(generate_nonimm_binary("sadd", 0, 0, reg))
+		instructions.append(generate_imm_test("addi", -1 * sca, reg, reg))
+		instructions.append(generate_nonimm_binary("sub", 0, reg, reg))
+	else:
+		instructions.append(generate_imm_test("addi", sca, 0, reg))
 
 	return instructions
 
@@ -156,8 +167,28 @@ def generate_dot_tests():
 
 	return instructions
 
+def generate_vmult_tests():
+	op = "vmult"
+	src1 = 2
+	src2 = 3
+	dest = 1
+	instructions = []
+
+def generate_addi_tests():
+	op = "addi"
+	src = 2
+	dest = 1
+	instructions = []
+
+	instructions.append(generate_imm_test(op, 20, 0, src))
+	instructions.append(generate_imm_test(op, 50, src, dest))
+	instructions.append(generate_imm_test(op, 2, dest, dest))
+	instructions.append(generate_imm_test(op, 0, dest, dest))
+
+	return instructions
+
 if __name__ == '__main__':
-	instructions = generate_dot_tests()
+	instructions = generate_addi_tests()
 
 	with open('unit_tests/register_operations.csv', "w+") as output_file:
 		output_file.write("\n".join(instructions))

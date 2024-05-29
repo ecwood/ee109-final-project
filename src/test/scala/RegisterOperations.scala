@@ -13,7 +13,7 @@ import spatial.dsl._
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
-  val num_instructions = 22
+  val num_instructions = 4
   val num_vec_elements = 3
   val num_bits = 24
   val pixel_rows = 1
@@ -74,18 +74,18 @@ import spatial.dsl._
 
         val dot_product = (vec_reg_src1.x.to[SubType] * vec_reg_src2.x.to[SubType] + vec_reg_src1.y.to[SubType] * vec_reg_src2.y.to[SubType] + vec_reg_src1.z.to[SubType] * vec_reg_src2.z.to[SubType]).to[RegType]
 
-        // val mult_vscalar = Vector3(vec_reg_src1.x * sca_reg_src2, vec_reg_src1.y * sca_reg_src2, vec_reg_src1.z * sca_reg_src2) 
+        val mult_vscalar = Vector3(vec_reg_src1.x * sca_reg_src2, vec_reg_src1.y * sca_reg_src2, vec_reg_src1.z * sca_reg_src2) 
         // val div_vscalar = Vector3(vec_reg_src1.x / sca_reg_src2, vec_reg_src1.y / sca_reg_src2, vec_reg_src1.z / sca_reg_src2)
 
         // var sq_scalar = sca_reg_src2 * sca_reg_src2
         // val sqrt_scalar =  1 + (sq_scalar - 1) / 2 - ((sq_scalar - 1) * (sq_scalar - 1)) / 8 + ((sq_scalar - 1) * (sq_scalar - 1) * (sq_scalar - 1)) / 16
 
-        // val add_scalar = sca_reg_src1 + sca_reg_src2
-        // val sub_scalar = sca_reg_src1 - sca_reg_src2
+        val add_scalar = (sca_reg_src1.to[SubType] + sca_reg_src2.to[SubType]).to[RegType]
+        val sub_scalar = (sca_reg_src1.to[SubType] - sca_reg_src2.to[SubType]).to[RegType]
         // val mult_scalar = sca_reg_src1 * sca_reg_src2
         // val div_scalar = sca_reg_src1 / sca_reg_src2
 
-        // val addi_scalar = sca_reg_src2 + immediate_regtype
+        val addi_scalar = (sca_reg_src2.to[SubType] + immediate_regtype.to[SubType]).to[RegType]
 
         val addi_vector_x = Vector3(immediate_regtype + vec_reg_src2.x, vec_reg_src2.y, vec_reg_src2.z)
         val addi_vector_y = Vector3(vec_reg_src2.x, immediate_regtype + vec_reg_src2.y, vec_reg_src2.z)
@@ -97,7 +97,7 @@ import spatial.dsl._
         vec_operations(3) = vec_regs(dest.to[Int])
         vec_operations(4) = vec_regs(dest.to[Int])
         vec_operations(5) = vec_regs(dest.to[Int])
-        vec_operations(6) = vec_regs(dest.to[Int]) // mult_vscalar
+        vec_operations(6) = mult_vscalar
         vec_operations(7) = vec_regs(dest.to[Int]) // div_vscalar
         vec_operations(8) = vec_regs(dest.to[Int])
         vec_operations(9) = vec_regs(dest.to[Int])
@@ -118,11 +118,11 @@ import spatial.dsl._
         sca_operations(6) = sca_regs(dest.to[Int])
         sca_operations(7) = sca_regs(dest.to[Int])
         sca_operations(8) = sca_regs(dest.to[Int]) // sqrt_scalar
-        sca_operations(9) = sca_regs(dest.to[Int]) // add_scalar
-        sca_operations(10) = sca_regs(dest.to[Int]) // sub_scalar
+        sca_operations(9) = add_scalar
+        sca_operations(10) = sub_scalar
         sca_operations(11) = sca_regs(dest.to[Int]) // mult_scalar
         sca_operations(12) = sca_regs(dest.to[Int]) // div_scalar
-        sca_operations(13) = sca_regs(dest.to[Int]) // addi_scalar
+        sca_operations(13) = addi_scalar
         sca_operations(14) = sca_regs(dest.to[Int])
         sca_operations(15) = sca_regs(dest.to[Int])
         sca_operations(16) = sca_regs(dest.to[Int])
