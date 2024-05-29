@@ -55,7 +55,7 @@ import spatial.dsl._
       val inst_sram = SRAM[InstBit](num_instructions, num_bits)
       inst_sram load inst_dram
 
-      val internal_out = SRAM[Vector3](num_instructions, num_vec_elements)
+      val internal_out = SRAM[Int](num_instructions, num_vec_elements)
 
       val operations = SRAM[Vector3](num_operations)
 
