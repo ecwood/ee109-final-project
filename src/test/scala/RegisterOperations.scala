@@ -13,7 +13,7 @@ import spatial.dsl._
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
-  val num_instructions = 15
+  val num_instructions = 22
   val num_vec_elements = 3
   val num_bits = 24
   val pixel_rows = 1
@@ -61,7 +61,7 @@ import spatial.dsl._
         val sca_reg_src2 = sca_regs(src2.to[Int])
         val immediate_regtype = immediate.to[RegType]
 
-        val add_vectors = Vector3(vec_reg_src1.x + vec_reg_src2.x, vec_reg_src1.y + vec_reg_src2.y, vec_reg_src1.z + vec_reg_src2.z)
+        val add_vectors = Vector3((vec_reg_src1.x.to[SubType] + vec_reg_src2.x.to[SubType]).to[RegType], (vec_reg_src1.y.to[SubType] + vec_reg_src2.y.to[SubType]).to[RegType], (vec_reg_src1.z.to[SubType] + vec_reg_src2.z.to[SubType]).to[RegType])
 
         val sub_vectors = Vector3((vec_reg_src1.x.to[SubType] - vec_reg_src2.x.to[SubType]).to[RegType], (vec_reg_src1.y.to[SubType] - vec_reg_src2.y.to[SubType]).to[RegType], (vec_reg_src1.z.to[SubType] - vec_reg_src2.z.to[SubType]).to[RegType])
 

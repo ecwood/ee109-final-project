@@ -32,6 +32,7 @@ vec4 = (8, 15, 4)
 vec5 = (13, 9, 2)
 vec_zero = (0, 0, 0)
 vec_neg = (-4, 8, -3)
+vec_neg2 = (-2, -62, 9)
 
 def decimal_to_binary(dec, bits):
 	binary = ["0"] * bits
@@ -89,6 +90,12 @@ def load_scalar(sca, reg):
 
 	return instructions
 
+def expected_add(a, b):
+	(a_x, a_y, a_z) = a
+	(b_x, b_y, b_z) = b
+
+	return (a_x + b_x, a_y + b_y, a_z + b_z)
+
 def expected_sub(a, b):
 	(a_x, a_y, a_z) = a
 	(b_x, b_y, b_z) = b
@@ -100,6 +107,36 @@ def expected_dot(a, b):
 	(b_x, b_y, b_z) = b
 
 	return a_x * b_x + a_y * b_y + a_z * b_z
+
+def generate_add_tests():
+	op = "add"
+	src1 = 2
+	src2 = 3
+	dest = 1
+	instructions = []
+
+	# Load (4, 10, 3) into vector 2
+	instructions += load_vector(vec1, src2)
+
+	# Load (6, 12, 1) into vector 3
+	instructions += load_vector(vec2, src1)
+
+	instructions.append(generate_nonimm_binary(op, src1, src2, dest))
+
+	print("Expected Value:", expected_add(vec1, vec2))
+
+	# Load vec_neg into vector 2
+	instructions += load_vector(vec_neg, src1)
+
+	# Load vec_neg2 into vector 3
+	instructions += load_vector(vec_neg2, src2)
+
+	instructions.append(generate_nonimm_binary(op, src1, src2, dest))
+
+	print("Expected Value:", expected_add(vec_neg, vec_neg2))
+
+	return instructions
+
 
 def generate_sub_tests():
 	op = "sub"
@@ -225,7 +262,7 @@ def generate_ssub_tests():
 
 
 if __name__ == '__main__':
-	instructions = generate_ssub_tests()
+	instructions = generate_add_tests()
 
 	with open('unit_tests/register_operations.csv', "w+") as output_file:
 		output_file.write("\n".join(instructions))
