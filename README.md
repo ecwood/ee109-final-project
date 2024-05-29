@@ -1,6 +1,6 @@
 Unit Test Number | Completed? | Working Commit | Item
 -- | -- | -- | --
-1 |  X |  633900e | Load in CSV with one instruction
+1 |  X |  [633900e](https://github.com/ecwood/ee109-final-project/commit/633900e9cad0dec29c17af5902fffa4955b87220) | Load in CSV with one instruction
 2 |   |   | Output registers
 3 |   |   | Decode add instruction
 4 |   |   | Decode subtract instruction
