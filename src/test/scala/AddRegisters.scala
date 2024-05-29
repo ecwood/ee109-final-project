@@ -1,7 +1,6 @@
 import spatial.dsl._
 
 @spatial class AddRegisters extends SpatialTest {
-  type RegType = FixPt[FALSE, _16, _0]
   type InstructionFixed = FixPt[FALSE, _24, _0]
   type InstBit = FixPt[FALSE, _8, _0]
 
@@ -20,9 +19,9 @@ import spatial.dsl._
   )
 
   @struct class Vector3(
-    elem1: RegType,
-    elem2: RegType,
-    elem3: RegType
+    x: Int,
+    y: Int,
+    z: Int
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
@@ -45,7 +44,7 @@ import spatial.dsl._
     Accel {
       // Create the registers for each pixel
       val vec_regs = SRAM[Vector3](registers)
-      val sca_regs = SRAM[RegType](registers)
+      val sca_regs = SRAM[Int](registers)
 
       Foreach (0 until registers) { i =>
         vec_regs(i) = Vector3(0, 0, 0)
@@ -71,24 +70,13 @@ import spatial.dsl._
 
         val vec_reg_src1 = vec_regs(src1.to[Int])
         val vec_reg_src2 = vec_regs(src2.to[Int])
-        val vec_reg_src1_elem1 = vec_reg_src1.elem1
-        val vec_reg_src2_elem1 = vec_reg_src2.elem1
-        val vec_reg_src1_elem2 = vec_reg_src1.elem2
-        val vec_reg_src2_elem2 = vec_reg_src2.elem2
-        val vec_reg_src1_elem3 = vec_reg_src1.elem3
-        val vec_reg_src2_elem3 = vec_reg_src2.elem3
+        val immediate_int = immediate.to[Int]
 
-        val add_elem1 = vec_reg_src1_elem1.to[Int] + vec_reg_src2_elem1.to[Int]
-        val add_elem2 = vec_reg_src1_elem2.to[Int] + vec_reg_src2_elem2.to[Int]
-        val add_elem3 = vec_reg_src1_elem3.to[Int] + vec_reg_src2_elem3.to[Int]
-        val add_vectors = Vector3(add_elem1.to[RegType], add_elem2.to[RegType], add_elem3.to[RegType])
+        val add_vectors = Vector3(vec_reg_src1.x + vec_reg_src2.x, vec_reg_src1.y + vec_reg_src2.y, vec_reg_src1.z + vec_reg_src2.z)
 
-        val addi_elem1 = immediate.to[Int] + vec_reg_src2_elem1.to[Int]
-        val addi_elem2 = immediate.to[Int] + vec_reg_src2_elem2.to[Int]
-        val addi_elem3 = immediate.to[Int] + vec_reg_src2_elem3.to[Int]
-        val addi_vector_x = Vector3(addi_elem1.to[RegType], vec_reg_src2_elem2, vec_reg_src2_elem3)
-        val addi_vector_y = Vector3(vec_reg_src2_elem1, addi_elem2.to[RegType], vec_reg_src2_elem3)
-        val addi_vector_z = Vector3(vec_reg_src2_elem1, vec_reg_src2_elem2, addi_elem3.to[RegType])
+        val addi_vector_x = Vector3(immediate_int + vec_reg_src2.x, vec_reg_src2.y, vec_reg_src2.z)
+        val addi_vector_y = Vector3(vec_reg_src2.x, immediate_int + vec_reg_src2.y, vec_reg_src2.z)
+        val addi_vector_z = Vector3(vec_reg_src2.x, vec_reg_src2.y, immediate_int + vec_reg_src2.z)
 
         operations(0) = add_vectors
         operations(1) = addi_vector_x
@@ -97,9 +85,9 @@ import spatial.dsl._
 
         vec_regs(dest.to[Int]) = operations(gg.to[Int])
 
-        internal_out(i, 0) = vec_regs(1).elem1.to[Int]
-        internal_out(i, 1) = vec_regs(1).elem2.to[Int]
-        internal_out(i, 2) = vec_regs(1).elem3.to[Int]
+        internal_out(i, 0) = vec_regs(1).x
+        internal_out(i, 1) = vec_regs(1).y
+        internal_out(i, 2) = vec_regs(1).z
       }
 
       out store internal_out
