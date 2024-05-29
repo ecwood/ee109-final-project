@@ -6,12 +6,12 @@ registers
 	register 15 = zero register (always reads as 0)
 
 
-a_gg_oo_src1_src2_dest
+a_ggg_oo_src1_src2_dest
 
-a_gg = 0xx : arithmetic inst
-a_gg = 1xx : add scalar immediate
+a_ggg = 0xxx : arithmetic inst
+a_ggg = 1xxx : add scalar immediate
 
-0_00_oo_vvvv_vvvv_vvvv
+0_000_oo_vvvv_vvvv_vvvv
 	add
 		add v1 v2 v3       : v1 = v2 + v3
 	sub
@@ -19,7 +19,7 @@ a_gg = 1xx : add scalar immediate
 	normalize*
 		norm v1 v2         : v1 = v2 / |v2|
 
-0_01_oo_vvvv_vvvv_ssss
+0_001_oo_vvvv_vvvv_ssss
 	magnitude*
 		mag r1 v2          : r1 = |v2|
 	magnitude squared*
@@ -27,15 +27,25 @@ a_gg = 1xx : add scalar immediate
 	dot product
 		dot r1 v2 v3       : r1 = v2 . v3
 
-0_10_oo_vvvv_ssss_vvvv
+0_010_oo_vvvv_ssss_vvvv
 	scalar multiply
 		smult v1 v2 r3     : v1 = v2 * r3
 	scalar divide
 		sdiv v1 v2 r3      : v1 = v2 / r3
 
-0_11_oo_vvvv_ssss_ssss
+0_011_oo_vvvv_ssss_ssss
 	sqrt**
 		sqrt r1 r2         : r1 = sqrt(r2)
+
+0_111_oo_ssss_ssss_ssss
+	add
+		add r1 r2 r3       : r1 = r2 + r3
+	sub
+		sub r1 r2 r3       : r1 = r2 - r3
+	mult
+		mult r1 r2 r3      : r1 = r2 * r3
+	div
+		div r1 r2 r3       : r1 = r2 / r3
 
 
 1_gg_II_IIII_ssss_cccc
