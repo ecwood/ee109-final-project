@@ -26,7 +26,7 @@ import spatial.dsl._
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
-  val num_instructions = 1311
+  val num_instructions = 132
   val num_bits = 24
   val pixel_rows = 100
   val pixel_columns = 100
@@ -60,7 +60,7 @@ import spatial.dsl._
         internal_out(i) = inst_src1.to[Int]
       }
 
-      out store internal_out
+      out(0::num_instructions) store internal_out
     }
 
     val result = getMem(out)
@@ -68,7 +68,7 @@ import spatial.dsl._
     val gold = Array[Int] (0,3,7,11,15,3,7,11,15,3,7,10,14,2,6,10,14,2,6,10,14,2,5,9,13,1,5,9,13,1,5,9,13,0,4,8,12,0,4,8,12,0,4,7,11,15,3,7,11,15,3,7,11,15,2,6,10,14,2,6,10,14,2,6,10,13,1,5,9,13,1,5,9,13,1,4,8,12,0,4,8,12,0,4,8,12,15,3,7,11,15,3,7,11,15,3,7,10,14,2,6,10,14,2,6,10,14,1,5,9,13,1,5,9,13,1,5,9,12,0,4,8,12,0,4,8,12,0,4,7,11,15)
 
     // temporary for basic asm tests
-    print(result)
+    // print(result)
     assert(result == gold)
   }
 }
