@@ -2,6 +2,7 @@ import spatial.dsl._
 
 @spatial class LoadCSV extends SpatialTest {
   type RegType = FixPt[FALSE, _16, _0]
+  type Bit = FixPt[FALSE, _1, _0]
   type InstructionFixed = FixPt[FALSE, _24, _0]
 
   @struct class Instruction(
@@ -20,30 +21,43 @@ import spatial.dsl._
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
-  val N = 1
+  val num_instructions = 8
+  val instruction_bits = 24
   val pixel_rows = 100
   val pixel_columns = 100
   val registers = 16
 
   def main(args: Array[String]): Unit = {
-    val inst_host = loadCSV1D[InstructionFixed](s"$DATA/load_csv_test_1.csv")
-    val inst_dram = DRAM[InstructionFixed](N)
+    val inst_host = loadCSV1D[Bit](s"$DATA/load_csv_test_1.csv")
+    val inst_dram = DRAM[Bit](num_instructions, instruction_bits)
 
     setMem(inst_dram, inst_host)
 
-    val out = ArgOut[Int]
+    val out = DRAM[Int](num_instructions)
 
     Accel {
-      val inst_sram = SRAM[InstructionFixed](N)
+      val inst_sram = SRAM[Bit](num_instructions, instruction_bits)
       inst_sram load inst_dram
 
-      out := 1 + 1
+      val out_folder = SRAM[Int](num_instructions)
+
+      Foreach (num_instructions by 1) {j => out_folder(j) = 0}
+
+      MemFold(out_folder)(0 until instruction_bits by 1) { i =>
+        val tmp = SRAM[Int](num_instructions)
+        Foreach(num_instructions by 1) {j =>
+          tmp(j) = inst_sram(j, i).to[Int]
+        }
+        tmp
+      }{_+_}
+
+      out store out_folder
     }
 
-    val result = getArg(out)
+    val result = getMem(out)
 
     // temporary for basic asm tests
     print(result)
-    assert(result == 2)
+    // assert(result == [1])
   }
 }
