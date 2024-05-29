@@ -1,2 +1,2 @@
 # Write any command you want to run
-# sbt -Dtest.VCS=true "; testOnly ProjectTemplate"
+TEST_DATA_HOME=$PWD/unit_tests sbt -Dtest.CS217=true "; testOnly LoadCSV"
