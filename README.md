@@ -24,3 +24,14 @@ Unit Test Number | Completed? | Working Commit | Item
 22 |   |   | Magntidue of register
 23 |   |   | Magnitude squared register
 24 |   |   | Dot product registers
+
+
+COMPLETED:
+- Load in CSV with one instruction
+- Load in CSV with multiple instructions
+- Output the output registers
+- Decode instructions
+- Add instructions
+- Subtract instructions (including with a negative result)
+- Dot product (including with negative inputs)
+- Normalize instructions (not necessarily with negative inputs, but correctly outputting fractions)
