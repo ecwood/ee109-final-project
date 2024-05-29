@@ -13,7 +13,7 @@ import spatial.dsl._
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
-  val num_instructions = 7
+  val num_instructions = 14
   val num_vec_elements = 3
   val num_bits = 24
   val pixel_rows = 1
@@ -112,8 +112,8 @@ import spatial.dsl._
         sca_operations(0) = sca_regs(dest.to[Int])
         sca_operations(1) = sca_regs(dest.to[Int])
         sca_operations(2) = sca_regs(dest.to[Int])
-        sca_operations(3) = sca_regs(dest.to[Int]) // src2_mag
-        sca_operations(4) = sca_regs(dest.to[Int]) // src2_mag2
+        sca_operations(3) = src2_mag
+        sca_operations(4) = src2_mag2
         sca_operations(5) = dot_product
         sca_operations(6) = sca_regs(dest.to[Int])
         sca_operations(7) = sca_regs(dest.to[Int])

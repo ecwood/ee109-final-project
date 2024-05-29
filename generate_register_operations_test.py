@@ -30,6 +30,7 @@ vec_easy_norm = (4, 2, 4)
 vec3 = (7, 3, 10)
 vec4 = (8, 15, 4)
 vec5 = (13, 9, 2)
+vec_zero = (0, 0, 0)
 
 def decimal_to_binary(dec, bits):
 	binary = ["0"] * bits
@@ -90,6 +91,14 @@ def generate_sub_tests():
 
 	instructions.append(generate_nonimm_binary("sub", src1, src2, dest))
 
+	# Load (0, 0, 0) into vector 2
+	instructions += load_vector(vec_zero, src2)
+
+	# Load (0, 0, 0) into vector 3
+	instructions += load_vector(vec_zero, src1)
+
+	instructions.append(generate_nonimm_binary("sub", src1, src2, dest))
+
 	return instructions
 
 def generate_norm_tests():
@@ -129,7 +138,7 @@ def generate_dot_tests():
 	return instructions
 
 if __name__ == '__main__':
-	instructions = generate_dot_tests()
+	instructions = generate_sub_tests()
 
 	with open('unit_tests/register_operations.csv', "w+") as output_file:
 		output_file.write("\n".join(instructions))
