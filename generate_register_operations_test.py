@@ -83,7 +83,7 @@ def load_scalar(sca, reg):
 	if sca < 0:
 		instructions.append(generate_nonimm_binary("sadd", 0, 0, reg))
 		instructions.append(generate_imm_test("addi", -1 * sca, reg, reg))
-		instructions.append(generate_nonimm_binary("sub", 0, reg, reg))
+		instructions.append(generate_nonimm_binary("ssub", 0, reg, reg))
 	else:
 		instructions.append(generate_imm_test("addi", sca, 0, reg))
 
@@ -187,7 +187,7 @@ def generate_addi_tests():
 
 	return instructions
 
-def generate_add_tests():
+def generate_sadd_tests():
 	op = "sadd"
 	src1 = 2
 	src2 = 3
@@ -201,8 +201,31 @@ def generate_add_tests():
 
 	return instructions
 
+def generate_ssub_tests():
+	op = "ssub"
+	src1 = 2
+	src2 = 3
+	dest = 1
+	instructions = []
+
+	instructions += load_scalar(18, src1)
+	instructions += load_scalar(25, src2)
+
+	instructions.append(generate_nonimm_binary(op, src1, src2, dest))
+
+	instructions += load_scalar(27, src1)
+	instructions += load_scalar(-56, src2)
+	instructions.append(generate_nonimm_binary("sadd", src1, src2, dest))
+
+	instructions += load_scalar(-8, src1)
+	instructions += load_scalar(-10, src2)
+	instructions.append(generate_nonimm_binary("ssub", src1, src2, dest))
+
+	return instructions
+
+
 if __name__ == '__main__':
-	instructions = generate_add_tests()
+	instructions = generate_ssub_tests()
 
 	with open('unit_tests/register_operations.csv', "w+") as output_file:
 		output_file.write("\n".join(instructions))

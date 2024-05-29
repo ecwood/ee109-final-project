@@ -13,7 +13,7 @@ import spatial.dsl._
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
-  val num_instructions = 3
+  val num_instructions = 15
   val num_vec_elements = 3
   val num_bits = 24
   val pixel_rows = 1
