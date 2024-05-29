@@ -13,7 +13,7 @@ import spatial.dsl._
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
-  val num_instructions = 7
+  val num_instructions = 4
   val num_vec_elements = 3
   val num_bits = 24
   val pixel_rows = 1
@@ -65,12 +65,12 @@ import spatial.dsl._
 
         val sub_vectors = Vector3((vec_reg_src1.x.to[SubType] - vec_reg_src2.x.to[SubType]).to[RegType], (vec_reg_src1.y.to[SubType] - vec_reg_src2.y.to[SubType]).to[RegType], (vec_reg_src1.z.to[SubType] - vec_reg_src2.z.to[SubType]).to[RegType])
 
-        // val src2_mag2 = vec_reg_src2.x * vec_reg_src2.x + vec_reg_src2.y * vec_reg_src2.y + vec_reg_src2.z * vec_reg_src2.z
+        val src2_mag2 = vec_reg_src2.x * vec_reg_src2.x + vec_reg_src2.y * vec_reg_src2.y + vec_reg_src2.z * vec_reg_src2.z
 
-        // // Taylor Approximation of Square Root: https://math.libretexts.org/Bookshelves/Analysis/Supplemental_Modules_(Analysis)/Series_and_Expansions/Taylor_Expansion_II
-        // val src2_mag = 1 + (src2_mag2 - 1) / 2 - ((src2_mag2 - 1) * (src2_mag2 - 1)) / 8 + ((src2_mag2 - 1) * (src2_mag2 - 1) * (src2_mag2 - 1)) / 16
+        // Taylor Approximation of Square Root: https://math.libretexts.org/Bookshelves/Analysis/Supplemental_Modules_(Analysis)/Series_and_Expansions/Taylor_Expansion_II
+        val src2_mag = sqrt(src2_mag2) //1 + (src2_mag2 - 1) / 2 - ((src2_mag2 - 1) * (src2_mag2 - 1)) / 8 + ((src2_mag2 - 1) * (src2_mag2 - 1) * (src2_mag2 - 1)) / 16
 
-        // val normalize_vector = Vector3(vec_reg_src2.x / src2_mag, vec_reg_src2.y / src2_mag, vec_reg_src2.z / src2_mag)
+        val normalize_vector = Vector3((vec_reg_src2.x.to[SubType] / (src2_mag.to[SubType])).to[RegType], (vec_reg_src2.y.to[SubType] / src2_mag.to[SubType]).to[RegType], (vec_reg_src2.z.to[SubType] / src2_mag.to[SubType]).to[RegType])
 
         // val dot_product = vec_reg_src1.x * vec_reg_src2.x + vec_reg_src1.y * vec_reg_src2.y + vec_reg_src1.z * vec_reg_src2.z
 
@@ -93,7 +93,7 @@ import spatial.dsl._
 
         vec_operations(0) = add_vectors
         vec_operations(1) = sub_vectors
-        vec_operations(2) = vec_regs(dest.to[Int]) // normalize_vector
+        vec_operations(2) = normalize_vector
         vec_operations(3) = vec_regs(dest.to[Int])
         vec_operations(4) = vec_regs(dest.to[Int])
         vec_operations(5) = vec_regs(dest.to[Int])

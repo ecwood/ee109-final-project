@@ -70,8 +70,21 @@ def generate_sub_tests():
 
 	return instructions
 
+def generate_norm_tests():
+	op = "norm"
+	src = 1
+	dest = 1
+	instructions = []
+
+	# First, we'll test with an example that comes out evenly
+	instructions += load_vector(4, 2, 4, src)
+
+	instructions.append(generate_nonimm_binary("norm", 0, src, dest))
+
+	return instructions
+
 if __name__ == '__main__':
-	instructions = generate_sub_tests()
+	instructions = generate_norm_tests()
 
 	with open('unit_tests/register_operations.csv', "w+") as output_file:
 		output_file.write("\n".join(instructions))
