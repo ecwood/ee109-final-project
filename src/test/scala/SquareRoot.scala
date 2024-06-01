@@ -18,11 +18,10 @@ import spatial.dsl._
 
     Accel {
       val temp = 26.0.to[RegType]
-      val saved_vals = SRAM[RegType](iterations)
-
       val actual_square_root = Reg[RegType](0.0)
 
-      Foreach (1 until (iterations + 1)) { square =>
+      Reduce (actual_square_root) (iterations by 1) { base_square =>
+        val square = base_square + 1
         val squared = (square * square).to[RegType]
         val square_cast = square.to[RegType]
         val divided = (temp.to[SubType] / squared.to[SubType]).to[RegType]
@@ -40,11 +39,7 @@ import spatial.dsl._
         val next_divided = (temp.to[SubType] / next_squared.to[SubType]).to[RegType]
         val save = (divided >= 1 && (next_divided < 1)).to[RegType]
         val value_to_save = (square_root.to[RegType] * save).to[RegType]
-        saved_vals(square - 1) = value_to_save.to[RegType]
-      }
-
-      Reduce (actual_square_root) (iterations by 1) { sqrt_i =>
-        saved_vals(sqrt_i)
+        value_to_save.to[RegType]
       } {_+_}
 
       out := actual_square_root

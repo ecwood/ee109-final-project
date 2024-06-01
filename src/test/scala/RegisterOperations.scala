@@ -20,6 +20,7 @@ import spatial.dsl._
   val pixel_columns = 1
   val registers = 16
   val num_operations = 17
+  val iterations = 31 // For square root calculating
 
   def main(args: Array[String]): Unit = {
     val inst_host = loadCSV1D[InstBit](s"$DATA/register_operations.csv")
@@ -31,8 +32,8 @@ import spatial.dsl._
 
     Accel {
       // Create the registers for each pixel
-      val vec_regs = SRAM[Vector3](registers)
-      val sca_regs = SRAM[RegType](registers)
+      val vec_regs = SRAM[Vector3](registers).buffer
+      val sca_regs = SRAM[RegType](registers).buffer
 
       Foreach (0 until registers) { i =>
         vec_regs(i) = Vector3(0, 0, 0)
@@ -70,24 +71,30 @@ import spatial.dsl._
         // Taylor Approximation of Square Root: https://math.libretexts.org/Bookshelves/Analysis/Supplemental_Modules_(Analysis)/Series_and_Expansions/Taylor_Expansion_II
         val src2_mag = sqrt(src2_mag2) //1 + (src2_mag2 - 1) / 2 - ((src2_mag2 - 1) * (src2_mag2 - 1)) / 8 + ((src2_mag2 - 1) * (src2_mag2 - 1) * (src2_mag2 - 1)) / 16
         
-        // val temp = 26.0.to[RegType]
-        // val saved_vals = SRAM[RegType](31)
+        val temp = 26.0.to[RegType]
+        val actual_square_root = Reg[RegType](0.0)
 
-        // Foreach (1 until 32) { square =>
-        //   val squared = (square * square).to[SubType]
-        //   val divided = temp.to[SubType] / squared
-        //   val shfted = divided.to[SubType] - 1.0
-        //   val square_root = square.to[SubType] * (1.0 + divided / 2.0 - (divided * divided) / 8.0 + (divided * divided * divided) / 16.0)
-        //   val prev = square.to[SubType] - 1.0.to[SubType]
-        //   val save = (divided >= 1 && (temp.to[SubType] / (prev * prev).to[SubType] < 1)).to[RegType]
-        //   val value_to_save = (square_root.to[RegType] * save).to[RegType]
-        //   saved_vals(square - 1) = value_to_save
-        // }
-
-        // val sqrt_ans = 0.0.to[RegType]
-        // Reduce (sqrt_ans) (0 until 31) { sq =>
-        //   saved_vals(sq)
-        // }{_+_}
+        Reduce (actual_square_root) (iterations by 1) { base_square =>
+          val square = base_square + 1
+          val squared = (square * square).to[RegType]
+          val square_cast = square.to[RegType]
+          val divided = (temp.to[SubType] / squared.to[SubType]).to[RegType]
+          val shfted = (divided.to[SubType] - 1.0).to[RegType]
+          val shfted_sqed = (shfted.to[SubType] * shfted.to[SubType]).to[RegType]
+          val shfted_tred = (shfted.to[SubType] * shfted.to[SubType] * shfted.to[SubType]).to[RegType]
+          val sqrt_elem1 = 1.0.to[RegType]
+          val sqrt_elem2 = (shfted.to[SubType] / 2.0).to[RegType]
+          val sqrt_elem3 = (shfted_sqed.to[SubType] / 4.0).to[RegType]
+          val sqrt_elem4 = (shfted_tred.to[SubType] / 16.0).to[RegType]
+          val sqrt_series = (sqrt_elem1.to[SubType] + sqrt_elem2.to[SubType] - sqrt_elem3.to[SubType] + sqrt_elem4.to[SubType]).to[RegType]
+          val square_root = (square_cast.to[SubType] * sqrt_series.to[SubType]).to[SubType]
+          val next = (square_cast.to[SubType] + 1.to[SubType]).to[RegType]
+          val next_squared = (next.to[SubType] * next.to[SubType]).to[RegType]
+          val next_divided = (temp.to[SubType] / next_squared.to[SubType]).to[RegType]
+          val save = (divided >= 1 && (next_divided < 1)).to[RegType]
+          val value_to_save = (square_root.to[RegType] * save).to[RegType]
+          value_to_save.to[RegType]
+        } {_+_}
 
         val normalize_vector = Vector3((vec_reg_src2.x.to[SubType] / (src2_mag.to[SubType])).to[RegType], (vec_reg_src2.y.to[SubType] / src2_mag.to[SubType]).to[RegType], (vec_reg_src2.z.to[SubType] / src2_mag.to[SubType]).to[RegType])
 
