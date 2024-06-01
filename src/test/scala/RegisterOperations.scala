@@ -69,12 +69,31 @@ import spatial.dsl._
 
         // Taylor Approximation of Square Root: https://math.libretexts.org/Bookshelves/Analysis/Supplemental_Modules_(Analysis)/Series_and_Expansions/Taylor_Expansion_II
         val src2_mag = sqrt(src2_mag2) //1 + (src2_mag2 - 1) / 2 - ((src2_mag2 - 1) * (src2_mag2 - 1)) / 8 + ((src2_mag2 - 1) * (src2_mag2 - 1) * (src2_mag2 - 1)) / 16
+        
+        // val temp = 26.0.to[RegType]
+        // val saved_vals = SRAM[RegType](31)
+
+        // Foreach (1 until 32) { square =>
+        //   val squared = (square * square).to[SubType]
+        //   val divided = temp.to[SubType] / squared
+        //   val shfted = divided.to[SubType] - 1.0
+        //   val square_root = square.to[SubType] * (1.0 + divided / 2.0 - (divided * divided) / 8.0 + (divided * divided * divided) / 16.0)
+        //   val prev = square.to[SubType] - 1.0.to[SubType]
+        //   val save = (divided >= 1 && (temp.to[SubType] / (prev * prev).to[SubType] < 1)).to[RegType]
+        //   val value_to_save = (square_root.to[RegType] * save).to[RegType]
+        //   saved_vals(square - 1) = value_to_save
+        // }
+
+        // val sqrt_ans = 0.0.to[RegType]
+        // Reduce (sqrt_ans) (0 until 31) { sq =>
+        //   saved_vals(sq)
+        // }{_+_}
 
         val normalize_vector = Vector3((vec_reg_src2.x.to[SubType] / (src2_mag.to[SubType])).to[RegType], (vec_reg_src2.y.to[SubType] / src2_mag.to[SubType]).to[RegType], (vec_reg_src2.z.to[SubType] / src2_mag.to[SubType]).to[RegType])
 
         val dot_product = (vec_reg_src1.x.to[SubType] * vec_reg_src2.x.to[SubType] + vec_reg_src1.y.to[SubType] * vec_reg_src2.y.to[SubType] + vec_reg_src1.z.to[SubType] * vec_reg_src2.z.to[SubType]).to[RegType]
 
-        val mult_vscalar = Vector3(vec_reg_src1.x * sca_reg_src2, vec_reg_src1.y * sca_reg_src2, vec_reg_src1.z * sca_reg_src2) 
+        val mult_vscalar = Vector3((vec_reg_src1.x.to[SubType] * sca_reg_src2.to[SubType]).to[RegType], (vec_reg_src1.y.to[SubType] * sca_reg_src2.to[SubType]).to[RegType], (vec_reg_src1.z.to[SubType] * sca_reg_src2.to[SubType]).to[RegType]) 
         // val div_vscalar = Vector3(vec_reg_src1.x / sca_reg_src2, vec_reg_src1.y / sca_reg_src2, vec_reg_src1.z / sca_reg_src2)
 
         // var sq_scalar = sca_reg_src2 * sca_reg_src2
