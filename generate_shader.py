@@ -201,40 +201,56 @@ def ray_hit_sphere(in_vreg_ray_origin,
 
 	return instructions
 
-# def shoot_ray(in_vreg_ray_origin,
-# 			  in_vreg_ray_dir,
-# 			  in_spheres_regs,
-# 			  inout_hitinfo_regs,
-# 			  out_sreg_updated,
-# 			  free_vregs,
-# 			  free_sregs):
-# 	instructions = []
-# 	assert(len(free_vregs) >= 3)
-# 	assert(len(free_sregs) >= 6)
-# 	vreg_temp_normal = free_vregs[0]
-# 	sreg_tmp_t = free_sregs[0]
-# 	sreg_tmp_inner_valid = free_sregs[1]
+def shoot_ray(in_vreg_ray_origin,
+			  in_vreg_ray_dir,
+			  in_spheres_regs,
+			  inout_hitinfo_regs,
+			  out_sreg_updated,
+			  free_vregs,
+			  free_sregs):
+	instructions = []
+	assert(len(free_vregs) >= 3)
+	assert(len(free_sregs) >= 6)
+	vreg_temp_normal = free_vregs[0]
+	sreg_tmp_t = free_sregs[0]
+	sreg_tmp_valid = free_sregs[1]
 
-# 	(vreg_info_color, vreg_info_normal, vreg_info_ray, sreg_info_t) = inout_hitinfo_regs
+	(vreg_info_color, vreg_info_normal, vreg_info_ray_origin, vreg_info_ray_dir, sreg_info_t) = inout_hitinfo_regs
 
-# 	# bool updated = false => out_sreg_updated = ZERO_REG + ZERO_REG
-# 	instructions.append(nonimm("sadd", ZERO_REG, ZERO_REG, out_sreg_updated))
+	# bool updated = false => out_sreg_updated = ZERO_REG + ZERO_REG
+	instructions.append(nonimm("sadd", ZERO_REG, ZERO_REG, out_sreg_updated))
 
-# 	for sphere in in_spheres_regs:
-# 		(vreg_sphere_pos, sreg_sphere_rad, vreg_sphere_color) = sphere
+	for sphere in in_spheres_regs:
+		(vreg_sphere_pos, sreg_sphere_rad, vreg_sphere_color) = sphere
 
-# 		instructions += ray_hit_sphere(in_vreg_ray_origin,
-# 									   in_vreg_ray_dir,
-# 									   vreg_sphere_pos,
-# 									   sreg_sphere_rad,
-# 									   vreg_temp_normal,
-# 									   sreg_tmp_t,
-# 									   sreg_tmp_valid,
-# 									   free_vregs[1:],
-# 									   free_sregs[2:])
+		instructions += ray_hit_sphere(in_vreg_ray_origin,
+									   in_vreg_ray_dir,
+									   vreg_sphere_pos,
+									   sreg_sphere_rad,
+									   vreg_temp_normal,
+									   sreg_tmp_t,
+									   sreg_tmp_valid,
+									   free_vregs[1:],
+									   free_sregs[2:])
 
+		# compare sphere_info.t against info.t using the same valid bit => sreg_tmp_valid = sreg_tmp_t < sreg_info_t
+		instructions.append(nonimm("less", sreg_tmp_t, sreg_info_t, sreg_tmp_valid, sreg_tmp_valid))
 
+		# if we want to save this value, sreg_tmp_valid will be high
+		# sphere info for movement:
+		#	- sphere_info.color = vreg_sphere_color => vreg_info_color
+		#	- sphere_info.normal = vreg_temp_normal => vreg_info_normal
+		#	- sphere_info.ray.origin = in_vreg_ray_origin => vreg_info_ray_origin
+		#	- sphere_info.ray.dir = in_vreg_ray_dir => vreg_info_ray_dir
+		#	- sphere_info.t = sreg_tmp_t => sreg_info_t
+		instructions.append(nonimm("add", vreg_sphere_color, ZERO_REG, vreg_info_color, sreg_tmp_valid))
+		instructions.append(nonimm("add", vreg_temp_normal, ZERO_REG, vreg_info_normal, sreg_tmp_valid))
+		instructions.append(nonimm("add", in_vreg_ray_origin, ZERO_REG, vreg_info_ray_origin, sreg_tmp_valid))
+		instructions.append(nonimm("add", in_vreg_ray_dir, ZERO_REG, vreg_info_ray_dir, sreg_tmp_valid))
+		instructions.append(nonimm("sadd", sreg_tmp_t, ZERO_REG, sreg_info_t, sreg_tmp_valid))
 
+		# Set the updated register high
+		instructions.append(imm("addi", 1, ZERO_REG, out_sreg_updated, sreg_tmp_valid))
 
 def test_ray_hit_sphere():
 	vreg_ray_origin = 2
