@@ -19,8 +19,8 @@ import spatial.dsl._
   val pixel_rows = 1
   val pixel_columns = 1
   val registers = 16
-  val num_operations = 17
-  val square_root_table_elements = 1500 // For square root calculating, up to 4096 but takes a lot longer
+  val num_operations = 19
+  val square_root_table_elements = 2000 // For square root calculating, up to 4096 but takes a lot longer
   val square_root_table_cols = 2
 
   def main(args: Array[String]): Unit = {
@@ -146,6 +146,9 @@ import spatial.dsl._
             val addi_vector_y = Vector3(vec_reg_src2.x, immediate_regtype + vec_reg_src2.y, vec_reg_src2.z)
             val addi_vector_z = Vector3(vec_reg_src2.x, vec_reg_src2.y, immediate_regtype + vec_reg_src2.z)
 
+            val less_than = (sca_reg_src1.to[SubType] < sca_reg_src2.to[SubType]).to[RegType]
+            val greater_than_or_equal = (sca_reg_src1.to[SubType] >= sca_reg_src2.to[SubType]).to[RegType]
+
             vec_operations(row, col, 0) = add_vectors
             vec_operations(row, col, 1) = sub_vectors
             vec_operations(row, col, 2) = normalize_vector
@@ -163,6 +166,8 @@ import spatial.dsl._
             vec_operations(row, col, 14) = addi_vector_x
             vec_operations(row, col, 15) = addi_vector_y
             vec_operations(row, col, 16) = addi_vector_z
+            vec_operations(row, col, 17) = vec_regs(row, col, dest.to[Int])
+            vec_operations(row, col, 18) = vec_regs(row, col, dest.to[Int])
 
             sca_operations(row, col, 0) = sca_regs(row, col, dest.to[Int])
             sca_operations(row, col, 1) = sca_regs(row, col, dest.to[Int])
@@ -181,6 +186,8 @@ import spatial.dsl._
             sca_operations(row, col, 14) = sca_regs(row, col, dest.to[Int])
             sca_operations(row, col, 15) = sca_regs(row, col, dest.to[Int])
             sca_operations(row, col, 16) = sca_regs(row, col, dest.to[Int])
+            sca_operations(row, col, 17) = less_than
+            sca_operations(row, col, 18) = greater_than_or_equal
 
             vec_compare_choice(0) = vec_regs(row, col, dest.to[Int])
             vec_compare_choice(1) = vec_operations(row, col, op.to[Int])
