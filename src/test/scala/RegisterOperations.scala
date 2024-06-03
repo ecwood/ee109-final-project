@@ -123,22 +123,6 @@ import spatial.dsl._
             val addi_vector_x = Vector3(immediate_regtype + vec_reg_src2.x, vec_reg_src2.y, vec_reg_src2.z)
             val addi_vector_y = Vector3(vec_reg_src2.x, immediate_regtype + vec_reg_src2.y, vec_reg_src2.z)
             val addi_vector_z = Vector3(vec_reg_src2.x, vec_reg_src2.y, immediate_regtype + vec_reg_src2.z)
-            
-            // Sequential {
-            //   val actual_square_root = Reg[RegType](0.0)
-              
-            //   Reduce (actual_square_root) (iterations by 1) { base_square =>
-            //     val square = base_square + 1
-            //     val squared = (square * square).to[RegType]
-            //     val square_cast = square.to[RegType]
-            //     val next = (square_cast.to[SubType] + 1.to[SubType]).to[RegType]
-            //     val next_squared = (next.to[SubType] * next.to[SubType]).to[RegType]
-            //     val next_divided = (src2_mag2.to[SubType] / next_squared.to[SubType]).to[RegType]
-            //     val save = (divided >= 1 && (next_divided < 1)).to[RegType]
-            //     val value_to_save = (square_root.to[RegType] * save).to[RegType]
-            //     value_to_save.to[RegType]
-            //   } {_+_}
-            // }
 
             vec_operations(0) = add_vectors
             vec_operations(1) = sub_vectors

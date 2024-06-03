@@ -1,4 +1,6 @@
 import json
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 STARTING_LINE = "STARTING DATA"
 ENDING_LINE = "ENDING DATA"
@@ -27,7 +29,7 @@ def reformat(old_data):
 		for col in range(0, NUM_COLS):
 			for inst in range(1, NUM_INSTRUCTIONS + 1):
 				for entry in range(0, NUM_ENTRIES):
-					new_data[inst][row][col][entry] = old_data[overall_index]
+					new_data[inst][row][col][entry] = float(old_data[overall_index])
 					overall_index += 1
 
 	return new_data
@@ -37,8 +39,38 @@ def print_array(formatted_data):
 		print_str = str()
 		for col in row:
 			print_str += str(col) + "\t"
-		print(print_str) 
+		print(print_str)
 
+def make_test_array(b_val):
+	SIZE = 256
+	new_array = [None] * SIZE
+	for row in range(0, 256):
+		new_array[row] = [None] * SIZE
+		for col in range(0, 256):
+			new_array[row][col] = [row, col, b_val]
+
+	return new_array
+
+def make_test_stream():
+	data_stream = list()
+	for b_val in range(0, 256, 10):
+		data_stream.append(make_test_array(b_val))
+	return data_stream
+
+
+def show_image(pixel_array):
+	plt.imshow(make_test_array(100))
+	plt.axis("off")
+	plt.show()
+
+def plot_images(data_stream):
+	plt.ion()
+	for item in data_stream:
+		plt.axis("off")
+		plt.imshow(item)
+		plt.pause(0.01)
+	
+	plt.show()
 
 if __name__ == '__main__':
 	save_lines = []
@@ -65,3 +97,5 @@ if __name__ == '__main__':
 	for inst in reformatted_data:
 		print("Instruction", inst)
 		print_array(reformatted_data[inst])
+
+	plot_images(make_test_stream())
