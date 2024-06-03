@@ -7,12 +7,12 @@ ENDING_LINE = "ENDING DATA"
 
 REPLACE_STRING = "[[34minfo[0m] "
 
-FILENAME = "output.txt"
+FILENAME = "temp_output.txt"
 
-NUM_ROWS = 100
-NUM_COLS = 100
+NUM_ROWS = 1
+NUM_COLS = 1
 NUM_ENTRIES = 4
-NUM_INSTRUCTIONS = 11
+NUM_INSTRUCTIONS = 29
 
 def reformat(old_data):
 	new_data = dict()
@@ -98,4 +98,4 @@ if __name__ == '__main__':
 		print("Instruction", inst)
 		print_array(reformatted_data[inst])
 
-	plot_images(make_test_stream())
+	# plot_images(make_test_stream())
