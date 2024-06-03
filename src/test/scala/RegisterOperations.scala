@@ -110,10 +110,24 @@ import spatial.dsl._
             val mult_vscalar = Vector3((vec_reg_src1.x.to[SubType] * sca_reg_src2.to[SubType]).to[RegType], (vec_reg_src1.y.to[SubType] * sca_reg_src2.to[SubType]).to[RegType], (vec_reg_src1.z.to[SubType] * sca_reg_src2.to[SubType]).to[RegType]) 
             val div_vscalar = Vector3((vec_reg_src1.x.to[SubType] / sca_reg_src2.to[SubType]).to[RegType], (vec_reg_src1.y.to[SubType] / sca_reg_src2.to[SubType]).to[RegType], (vec_reg_src1.z.to[SubType] / sca_reg_src2.to[SubType]).to[RegType])
 
-            // var sq_scalar = sca_reg_src2 * sca_reg_src2
-            // val sqrt_scalar =  1 + (sq_scalar - 1) / 2 - ((sq_scalar - 1) * (sq_scalar - 1)) / 8 + ((sq_scalar - 1) * (sq_scalar - 1) * (sq_scalar - 1)) / 16
+            val abs_src2 = SRAM[Int](2)
+            abs_src2(0) = sca_reg_src2.to[Int]
+            abs_src2(1) = (sca_reg_src2.to[SubType] * -1).to[Int]
+            val is_src2_negative = (sca_reg_src2 < 1).to[Int]
 
-            val sqrt_scalar = sqrt(sca_reg_src2)
+            val ts_for_src2_sca_square = squares_for_square_roots(abs_src2(is_src2_negative))
+            val ts_for_src2_sca_ = (ts_for_src2_sca_square * ts_for_src2_sca_square).to[RegType]
+            val ts_for_src2_sca_square_cast = ts_for_src2_sca_square.to[RegType]
+            val ts_for_src2_sca_divided = (sca_reg_src2.to[SubType] / ts_for_src2_sca_.to[SubType]).to[RegType]
+            val ts_for_src2_sca_shfted = (ts_for_src2_sca_divided.to[SubType] - 1.0).to[RegType]
+            val ts_for_src2_sca_shfted_sqed = (ts_for_src2_sca_shfted.to[SubType] * ts_for_src2_sca_shfted.to[SubType]).to[RegType]
+            val ts_for_src2_sca_shfted_tred = (ts_for_src2_sca_shfted.to[SubType] * ts_for_src2_sca_shfted.to[SubType] * ts_for_src2_sca_shfted.to[SubType]).to[RegType]
+            val ts_for_src2_sca_sqrt_elem1 = 1.0.to[RegType]
+            val ts_for_src2_sca_sqrt_elem2 = (ts_for_src2_sca_shfted.to[SubType] / 2.0).to[RegType]
+            val ts_for_src2_sca_sqrt_elem3 = (ts_for_src2_sca_shfted_sqed.to[SubType] / 4.0).to[RegType]
+            val ts_for_src2_sca_sqrt_elem4 = (ts_for_src2_sca_shfted_tred.to[SubType] / 16.0).to[RegType]
+            val ts_for_src2_sca_sqrt_series = (ts_for_src2_sca_sqrt_elem1.to[SubType] + ts_for_src2_sca_sqrt_elem2.to[SubType] - ts_for_src2_sca_sqrt_elem3.to[SubType] + ts_for_src2_sca_sqrt_elem4.to[SubType]).to[RegType]
+            val sqrt_scalar = (ts_for_src2_sca_square_cast.to[SubType] * ts_for_src2_sca_sqrt_series.to[SubType]).to[RegType]
 
             val add_scalar = (sca_reg_src1.to[SubType] + sca_reg_src2.to[SubType]).to[RegType]
             val sub_scalar = (sca_reg_src1.to[SubType] - sca_reg_src2.to[SubType]).to[RegType]
