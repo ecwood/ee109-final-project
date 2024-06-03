@@ -13,7 +13,7 @@ import spatial.dsl._
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
-  val num_instructions = 29
+  val num_instructions = 28
   val num_vec_elements = 3
   val num_bits = 24
   val pixel_rows = 1
@@ -86,7 +86,7 @@ import spatial.dsl._
             val sca_reg_comp = sca_regs(row, col, comp.to[Int])
             val immediate_regtype = immediate.to[RegType]
 
-            val compare_flag = (comp.to[Int] == 0 || sca_reg_comp.to[Int] == 1).to[Int]
+            val compare_flag = (comp.to[Int] == 0 || (sca_reg_comp.to[Int]) != 0.to[Int]).to[Int]
 
             val add_vectors = Vector3((vec_reg_src1.x.to[SubType] + vec_reg_src2.x.to[SubType]).to[RegType], (vec_reg_src1.y.to[SubType] + vec_reg_src2.y.to[SubType]).to[RegType], (vec_reg_src1.z.to[SubType] + vec_reg_src2.z.to[SubType]).to[RegType])
 

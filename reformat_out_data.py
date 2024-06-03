@@ -12,7 +12,7 @@ FILENAME = "temp_output.txt"
 NUM_ROWS = 1
 NUM_COLS = 1
 NUM_ENTRIES = 4
-NUM_INSTRUCTIONS = 29
+NUM_INSTRUCTIONS = 28
 
 def reformat(old_data):
 	new_data = dict()

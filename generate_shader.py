@@ -137,7 +137,7 @@ def expected_ray_hit_sphere(ray_origin, ray_direction, sphere_pos, sphere_rad):
 		t = dp - math.sqrt(inner)
 		normal = norm_vec(sub_vec(vmult(d, t), p))
 
-	return normal, t, inner < 0
+	return normal, t, (inner >= 0 and t >= 0)
 
 
 def ray_hit_sphere(in_vreg_ray_origin,
@@ -146,7 +146,7 @@ def ray_hit_sphere(in_vreg_ray_origin,
 				   in_sreg_sphere_rad,
 				   out_vreg_norm_vec,
 				   out_sreg_t,
-				   out_sreg_inner_valid,
+				   out_sreg_valid,
 				   free_vregs,
 				   free_sregs):
 	instructions = []
@@ -178,25 +178,63 @@ def ray_hit_sphere(in_vreg_ray_origin,
 	# inner = dp * dp - (pp - s.radius * s.radius) => tmp_sreg_4 = tmp_sreg_4 - tmp_sreg_3
 	instructions.append(nonimm("ssub", tmp_sreg_4, tmp_sreg_3, tmp_sreg_4))
 
-	# compare inner against 0 => out_sreg_inner_valid = tmp_sreg_4 >= ZERO_REG
-	instructions.append(nonimm("gte", tmp_sreg_4, ZERO_REG, out_sreg_inner_valid))
+	# compare inner against 0 => out_sreg_valid = tmp_sreg_4 >= ZERO_REG
+	instructions.append(nonimm("gte", tmp_sreg_4, ZERO_REG, out_sreg_valid))
 
 	# sqrt(inner) => tmp_sreg_4 = sqrt(tmp_sreg_4)
-	instructions.append(nonimm("sqrt", ZERO_REG, tmp_sreg_4, tmp_sreg_4, out_sreg_inner_valid))
+	instructions.append(nonimm("sqrt", ZERO_REG, tmp_sreg_4, tmp_sreg_4, out_sreg_valid))
 
 	# t = dp - sqrt(inner) => out_sreg_t = tmp_sreg_1 - tmp_sreg_4
-	instructions.append(nonimm("ssub", tmp_sreg_1, tmp_sreg_4, out_sreg_t, out_sreg_inner_valid))
+	instructions.append(nonimm("ssub", tmp_sreg_1, tmp_sreg_4, out_sreg_t, out_sreg_valid))
+
+	# compare t against 0 => out_sreg_valid = out_sreg_t >= ZERO_REG
+	instructions.append(nonimm("gte", out_sreg_t, ZERO_REG, out_sreg_valid, out_sreg_valid))
 
 	# t * d => tmp_vreg_2 = in_vreg_ray_dir * out_sreg_t
-	instructions.append(nonimm("vmult", in_vreg_ray_dir, out_sreg_t, tmp_vreg_2, out_sreg_inner_valid))
+	instructions.append(nonimm("vmult", in_vreg_ray_dir, out_sreg_t, tmp_vreg_2, out_sreg_valid))
 
 	# t * d - p => tmp_vreg_1 = tmp_vreg_2 - tmp_vreg_1
-	instructions.append(nonimm("sub", tmp_vreg_2, tmp_vreg_1, tmp_vreg_1, out_sreg_inner_valid))
+	instructions.append(nonimm("sub", tmp_vreg_2, tmp_vreg_1, tmp_vreg_1, out_sreg_valid))
 
 	# normal = normalize(t * d - p) => out_vreg_norm_vec = normalize(tmp_vreg_1)
-	instructions.append(nonimm("norm", tmp_vreg_1, tmp_vreg_1, out_vreg_norm_vec, out_sreg_inner_valid))
+	instructions.append(nonimm("norm", tmp_vreg_1, tmp_vreg_1, out_vreg_norm_vec, out_sreg_valid))
 
 	return instructions
+
+# def shoot_ray(in_vreg_ray_origin,
+# 			  in_vreg_ray_dir,
+# 			  in_spheres_regs,
+# 			  inout_hitinfo_regs,
+# 			  out_sreg_updated,
+# 			  free_vregs,
+# 			  free_sregs):
+# 	instructions = []
+# 	assert(len(free_vregs) >= 3)
+# 	assert(len(free_sregs) >= 6)
+# 	vreg_temp_normal = free_vregs[0]
+# 	sreg_tmp_t = free_sregs[0]
+# 	sreg_tmp_inner_valid = free_sregs[1]
+
+# 	(vreg_info_color, vreg_info_normal, vreg_info_ray, sreg_info_t) = inout_hitinfo_regs
+
+# 	# bool updated = false => out_sreg_updated = ZERO_REG + ZERO_REG
+# 	instructions.append(nonimm("sadd", ZERO_REG, ZERO_REG, out_sreg_updated))
+
+# 	for sphere in in_spheres_regs:
+# 		(vreg_sphere_pos, sreg_sphere_rad, vreg_sphere_color) = sphere
+
+# 		instructions += ray_hit_sphere(in_vreg_ray_origin,
+# 									   in_vreg_ray_dir,
+# 									   vreg_sphere_pos,
+# 									   sreg_sphere_rad,
+# 									   vreg_temp_normal,
+# 									   sreg_tmp_t,
+# 									   sreg_tmp_valid,
+# 									   free_vregs[1:],
+# 									   free_sregs[2:])
+
+
+
 
 def test_ray_hit_sphere():
 	vreg_ray_origin = 2
@@ -209,15 +247,15 @@ def test_ray_hit_sphere():
 	free_vregs = [5, 6]
 	free_sregs = [4, 5, 6, 7]
 
-	ray_origin = (4, 30, 10)
+	ray_origin = (0, 0, 0)
 	ray_direction = (4, 4, 2)
-	ray_direction_normal = (4 / 6, 4 / 6, 2 / 6)
-	sphere_pos = (3, -9, 10)
-	sphere_rad = 20
+	ray_direction_normal = norm_vec(ray_direction)
+	sphere_pos = (10, 9, 10)
+	sphere_rad = 6
 
-	norm_vec, t, inner_invalid = expected_ray_hit_sphere(ray_origin, ray_direction_normal, sphere_pos, sphere_rad)
+	normal_vec, t, inner_valid = expected_ray_hit_sphere(ray_origin, ray_direction_normal, sphere_pos, sphere_rad)
 
-	print("Expected: norm_vec = " + str(norm_vec) + "; t = " + str(t) + "; inner invalid: " + str(inner_invalid))
+	print("Expected: normal_vec = " + str(normal_vec) + "; t = " + str(t) + "; inner valid: " + str(inner_valid))
 
 	instructions = []
 	instructions += load_vector(ray_origin, vreg_ray_origin)
