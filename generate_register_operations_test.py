@@ -126,14 +126,14 @@ def generate_add_tests():
 	print("Expected Value:", expected_add(vec1, vec2))
 
 	# Load vec_neg into vector 2
-	instructions += load_vector(vec_neg, src1)
+	# instructions += load_vector(vec_neg, src1)
 
-	# Load vec_neg2 into vector 3
-	instructions += load_vector(vec_neg2, src2)
+	# # Load vec_neg2 into vector 3
+	# instructions += load_vector(vec_neg2, src2)
 
-	instructions.append(generate_nonimm_binary(op, src1, src2, dest))
+	# instructions.append(generate_nonimm_binary(op, src1, src2, dest))
 
-	print("Expected Value:", expected_add(vec_neg, vec_neg2))
+	# print("Expected Value:", expected_add(vec_neg, vec_neg2))
 
 	return instructions
 
