@@ -252,6 +252,13 @@ def shoot_ray(in_vreg_ray_origin,
 		# Set the updated register high
 		instructions.append(imm("addi", 1, ZERO_REG, out_sreg_updated, sreg_tmp_valid))
 
+def trace_ray():
+	pass
+
+def main_image():
+	
+
+
 def test_ray_hit_sphere():
 	vreg_ray_origin = 2
 	vreg_ray_dir = 3

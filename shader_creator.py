@@ -1,0 +1,566 @@
+import math
+
+NOTHING = ["0"]
+EMPTY_ON_NONIMM = ["0"] * 2
+OPERATIONS_BITS = 5
+REGISTER_BITS = 5
+NONIMM_OPERATIONS = {"add": 0,
+			  		 "sub": 1,
+			  		 "norm": 2,
+			  		 "mag": 3,
+			  		 "mags": 4,
+			  		 "dot": 5,
+			  		 "vmult": 6,
+			  		 "vdiv": 7,
+			  		 "sqrt": 8,
+			  		 "sadd": 9,
+			  		 "ssub": 10,
+			  		 "smult": 11,
+			  		 "sdiv": 12,
+			  		 "less": 17,
+			  		 "gte": 18}
+
+IMM_OPERATIONS = {"addi": 13,
+				  "vaddi.x": 14,
+			  	  "vaddi.y": 15,
+			  	  "vaddi.z": 16}
+
+DELIM = ","
+
+ZERO_REG = "zero"
+
+VECTOR_REGISTERS = {ZERO_REG: 0,
+					"out_color": 1,
+					"frag_coor": 2,
+					"sphere_pos": 3,
+					"sphere_color": 4,
+					"uv": 5,
+					"input_ray_pos": 6,
+					"input_ray_dir": 7,
+					"closest_info.color": 8,
+					"closest_info.normal": 9,
+					"closest_info.ray.pos": 10,
+					"closest_info.ray.dir": 11,
+					"light_pos": 12,
+					"hit_pos": 13,
+					"light_dir": 14,
+					"light_ray.pos": 15,
+					"light_ray.dir": 16,
+					"light_info.color": 17,
+					"light_info.normal": 18,
+					"light_info.ray.pos": 19,
+					"light_info.ray.dir": 20,
+					"trace_ray_return": 21,
+					"sphere_info.color": 22,
+					"sphere_info.normal": 23,
+					"sphere_info.ray.pos": 24,
+					"sphere_info.ray.dir": 25,
+					"ray_hit_sphere_p": 26,
+					"vtmp1": 27,
+					"vtmp2": 28,
+					"vtmp3": 29,
+					"vtmp4": 30,
+					"vtmp5": 31}
+
+SCALAR_REGISTERS = {ZERO_REG: 0,
+					"sphere_rad": 1,
+					"closest_info.t": 2,
+					"light_info.t": 3,
+					"sphere_info.t": 4,
+					"ray_hit_sphere_valid": 5,
+					"shoot_ray_updated": 6,
+					"ray_hit_sphere_dp": 7,
+					"ray_hit_sphere_dd": 8,
+					"ray_hit_sphere_pp": 9,
+					"ray_hit_sphere_inner": 10,
+					"ray_hit_sphere_t": 11,
+					"stmp1": 12,
+					"stmp2": 13,
+					"stmp3": 14,
+					"stmp4": 15,
+					"stmp5": 16,
+					"stmp6": 17,
+					"stmp7": 18,
+					"stmp8": 19,
+					"stmp9": 20,
+					"stmp10": 21,
+					"stmp11": 22,
+					"stmp12": 23,
+					"stmp13": 24,
+					"stmp14": 25,
+					"stmp15": 26,
+					"stmp16": 27,
+					"stmp17": 28,
+					"stmp18": 29,
+					"stmp19": 30,
+					"stmp20": 31}
+
+
+# Test Vectors
+
+def decimal_to_binary(dec, bits):
+	binary = ["0"] * bits
+
+	curr_val = dec
+
+	for x in range(bits - 1, -1, -1):
+		power = pow(2, x)
+		div = int(curr_val / power)
+		binary[bits - (x + 1)] = str(div)
+		curr_val -= div * power
+
+	return binary
+
+def nonimm(operation, src1, src2, dest, comp=0):
+	binary = NOTHING + decimal_to_binary(comp, REGISTER_BITS) + decimal_to_binary(NONIMM_OPERATIONS[operation], OPERATIONS_BITS) + EMPTY_ON_NONIMM + decimal_to_binary(src1, REGISTER_BITS) + decimal_to_binary(src2, REGISTER_BITS) + decimal_to_binary(dest, REGISTER_BITS)
+	return DELIM.join(binary)
+
+def imm(operation, imm, src2, dest, comp=0):
+	binary = NOTHING + decimal_to_binary(comp, REGISTER_BITS) + decimal_to_binary(IMM_OPERATIONS[operation], OPERATIONS_BITS) + decimal_to_binary(imm, 6) + decimal_to_binary(src2, REGISTER_BITS) + decimal_to_binary(dest, REGISTER_BITS)
+	return DELIM.join(binary)
+
+def add(src1, src2, dest, comp=ZERO_REG):
+	op = "add"
+	src1_reg = VECTOR_REGISTERS[src1]
+	src2_reg = VECTOR_REGISTERS[src2]
+	dest_reg = VECTOR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def sub(src1, src2, dest, comp=ZERO_REG):
+	op = "sub"
+	src1_reg = VECTOR_REGISTERS[src1]
+	src2_reg = VECTOR_REGISTERS[src2]
+	dest_reg = VECTOR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def norm(src2, dest, comp=ZERO_REG):
+	op = "norm"
+	src1_reg = SCALAR_REGISTERS[ZERO_REG]
+	src2_reg = VECTOR_REGISTERS[src2]
+	dest_reg = VECTOR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def mag(src2, dest, comp=ZERO_REG):
+	op = "mag"
+	src1_reg = SCALAR_REGISTERS[ZERO_REG]
+	src2_reg = VECTOR_REGISTERS[src2]
+	dest_reg = SCALAR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def mags(src2, dest, comp=ZERO_REG):
+	op = "mags"
+	src1_reg = SCALAR_REGISTERS[ZERO_REG]
+	src2_reg = VECTOR_REGISTERS[src2]
+	dest_reg = SCALAR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def dot(src1, src2, dest, comp=ZERO_REG):
+	op = "dot"
+	src1_reg = VECTOR_REGISTERS[src1]
+	src2_reg = VECTOR_REGISTERS[src2]
+	dest_reg = SCALAR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def vmult(src1, src2, dest, comp=ZERO_REG):
+	op = "vmult"
+	src1_reg = VECTOR_REGISTERS[src1]
+	src2_reg = SCALAR_REGISTERS[src2]
+	dest_reg = VECTOR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def vdiv(src1, src2, dest, comp=ZERO_REG):
+	op = "vdiv"
+	src1_reg = VECTOR_REGISTERS[src1]
+	src2_reg = SCALAR_REGISTERS[src2]
+	dest_reg = VECTOR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def sqrt(src2, dest, comp=ZERO_REG):
+	op = "sqrt"
+	src1_reg = SCALAR_REGISTERS[ZERO_REG]
+	src2_reg = SCALAR_REGISTERS[src2]
+	dest_reg = SCALAR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def sadd(src1, src2, dest, comp=ZERO_REG):
+	op = "sadd"
+	src1_reg = SCALAR_REGISTERS[src1]
+	src2_reg = SCALAR_REGISTERS[src2]
+	dest_reg = SCALAR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def ssub(src1, src2, dest, comp=ZERO_REG):
+	op = "ssub"
+	src1_reg = SCALAR_REGISTERS[src1]
+	src2_reg = SCALAR_REGISTERS[src2]
+	dest_reg = SCALAR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def smult(src1, src2, dest, comp=ZERO_REG):
+	op = "smult"
+	src1_reg = SCALAR_REGISTERS[src1]
+	src2_reg = SCALAR_REGISTERS[src2]
+	dest_reg = SCALAR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def sdiv(src1, src2, dest, comp=ZERO_REG):
+	op = "sdiv"
+	src1_reg = SCALAR_REGISTERS[src1]
+	src2_reg = SCALAR_REGISTERS[src2]
+	dest_reg = SCALAR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def less(src1, src2, dest, comp=ZERO_REG):
+	op = "less"
+	src1_reg = SCALAR_REGISTERS[src1]
+	src2_reg = SCALAR_REGISTERS[src2]
+	dest_reg = SCALAR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def gte(src1, src2, dest, comp=ZERO_REG):
+	op = "gte"
+	src1_reg = SCALAR_REGISTERS[src1]
+	src2_reg = SCALAR_REGISTERS[src2]
+	dest_reg = SCALAR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
+
+def addi(imm, src2, dest, comp=ZERO_REG):
+	op = "addi"
+	src2_reg = SCALAR_REGISTERS[src2]
+	dest_reg = SCALAR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [imm(op, imm, src2_reg, dest_reg, comp_reg)]
+
+def vaddix(imm, src2, dest, comp=ZERO_REG):
+	op = "vaddi.x"
+	src2_reg = VECTOR_REGISTERS[src2]
+	dest_reg = VECTOR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [imm(op, imm, src2_reg, dest_reg, comp_reg)]
+
+def vaddiy(imm, src2, dest, comp=ZERO_REG):
+	op = "vaddi.y"
+	src2_reg = VECTOR_REGISTERS[src2]
+	dest_reg = VECTOR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [imm(op, imm, src2_reg, dest_reg, comp_reg)]
+
+def vaddiz(imm, src2, dest, comp=ZERO_REG):
+	op = "vaddi.z"
+	src2_reg = VECTOR_REGISTERS[src2]
+	dest_reg = VECTOR_REGISTERS[dest]
+	comp_reg = SCALAR_REGISTERS[comp]
+
+	return [imm(op, imm, src2_reg, dest_reg, comp_reg)]
+
+def load_vector(vec, reg):
+	instructions = []
+	(x, y, z) = vec
+
+	# First, clear out any existing data
+	instructions += add(ZERO_REG, ZERO_REG, reg)
+
+	# Put the negative values in
+	if x < 0:
+		instructions += vaddix(-1 * x, reg, reg)
+	if y < 0:
+		instructions += vaddiy(-1 * y, reg, reg)
+	if z < 0:
+		instructions += vaddiz(-1 * z, reg, reg)
+
+	# Make them negative
+	instructions += sub(ZERO_REG, reg, reg)
+
+	if x > 0:
+		instructions += vaddix(x, reg, reg)
+	if y > 0:
+		instructions += vaddiy(y, reg, reg)
+	if z > 0:
+		instructions += vaddiz(z, reg, reg)
+
+	return instructions
+
+def load_vector_normal(vec, reg):
+	instructions = load_vector(vec, reg)
+	instructions += norm(reg, reg)
+
+	return instructions
+
+def load_scalar(sca, reg):
+	instructions = []
+
+	if sca < 0:
+		instructions += sadd(ZERO_REG, ZERO_REG, reg)
+		instructions += addi(-1 * sca, reg, reg)
+		instructions += ssub(ZERO_REG, reg, reg)
+	else:
+		instructions += addi(sca, ZERO_REG, reg)
+
+	return instructions
+
+def sub_vec(vec_a, vec_b):
+	(a_x, a_y, a_z) = vec_a
+	(b_x, b_y, b_z) = vec_b
+
+	return (a_x - b_x, a_y - b_y, a_z - b_z)
+
+def dot_vec(vec_a, vec_b):
+	(a_x, a_y, a_z) = vec_a
+	(b_x, b_y, b_z) = vec_b
+
+	return a_x * b_x + a_y * b_y + a_z * b_z
+
+def norm_vec(vec):
+	(x, y, z) = vec
+	mag = math.sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2))
+
+	return (x / mag, y / mag, z / mag)
+
+def vmult(vec, sca):
+	(x, y, z) = vec
+
+	return (x * sca, y * sca, z * sca)
+
+def expected_ray_hit_sphere(ray_origin, ray_direction, sphere_pos, sphere_rad):
+	p = sub_vec(sphere_pos, ray_origin)
+	d = ray_direction
+
+	dp = dot_vec(d, p)
+	pp = dot_vec(p, p)
+
+	inner = dp * dp - (pp - sphere_rad * sphere_rad)
+	print("p:", p)
+	print("d:", d)
+	print("dp:", dp)
+	print("dp * dp:", dp * dp)
+	print("pp - sphere_rad * sphere_rad:", pp - sphere_rad * sphere_rad)
+	print("inner:", inner)
+
+	if inner < 0:
+		t = -1
+		normal = norm_vec((1, 1, 1))
+	else:
+		t = dp - math.sqrt(inner)
+		normal = norm_vec(sub_vec(vmult(d, t), p))
+
+	return normal, t, (inner >= 0 and t >= 0)
+
+
+def ray_hit_sphere(ray, sphere, hit_info, valid_sreg):
+	instructions = []
+	
+	(ray_pos_vreg, ray_dir_vreg) = ray
+	(sphere_pos_vreg, sphere_color_vreg, sphere_rad_sreg) = sphere
+	(hit_info_color_vreg, hit_info_normal_vreg, hit_info_ray_pos_vreg, hit_info_ray_dir_vreg, hit_info_t_sreg) = hit_info
+
+	p_vreg = "ray_hit_sphere_p"
+	dp_sreg = "ray_hit_sphere_dp"
+	dd_sreg = "ray_hit_sphere_dd"
+	pp_sreg = "ray_hit_sphere_pp"
+	inner_sreg = "ray_hit_sphere_inner"
+	t_sreg = "ray_hit_sphere_t"
+	srad_srad_sreg = "stmp1"
+	pp_minus_srad2_sreg "stmp2"
+	dd_times_pp_minus_srad2_sreg = "stmp3"
+	dp_dp_sreg = "stmp4"
+	sqrt_inner_sreg = "stmp5"
+	t_d_vreg = "vtmp1"
+	t_d_minus_p_vreg = "vtmp2"
+
+	# p = s.pos - r.pos => p_vreg = sphere_pos_vreg - ray_pos_vreg
+	instructions += sub(sphere_pos_vreg, ray_pos_vreg, p_vreg)
+
+	# dp = dot(d, p) => dp_sreg = ray_dir_vreg * p_vreg
+	instructions += dot(ray_dir_vreg, p_vreg, dp_sreg)
+
+	# pp = dot(p, p) => pp_sreg = p_vreg * p_vreg
+	instructions += dot(p_vreg, p_vreg, pp_sreg)
+
+	# dd = dot(d, d) => dd_sreg = ray_dir_vreg * ray_dir_vreg
+	instructions += dot(ray_dir_vreg, ray_dir_vreg, dd_sreg)
+
+	# s.radius * s.radius -> srad_srad_sreg = sphere_rad_sreg * sphere_rad_sreg
+	instructions += smult(sphere_rad_sreg, sphere_rad_sreg, srad_srad_sreg)
+
+	# pp - s.radius * s.radius => pp_minus_srad2_sreg = pp_sreg - srad_srad_sreg
+	instructions += ssub(pp_sreg, srad_srad_sreg, pp_minus_srad2_sreg)
+
+	# dd * (pp - s.radius * s.radius) => dd_times_pp_minus_srad2_sreg = dd_sreg * pp_minus_srad2_sreg
+	instructions += smult(dd_sreg, pp_minus_srad2_sreg, dd_times_pp_minus_srad2_sreg)
+
+	# dp * dp => dp_dp_sreg = dp_sreg * dp_sreg
+	instructions += smult(dp_sreg, dp_sreg, dp_dp_sreg)
+
+	# inner = dp * dp - dd * (pp - s.radius * s.radius) => inner_sreg = dp_dp_sreg - dd_times_pp_minus_srad2_sreg
+	instructions += ssub(dp_dp_sreg, dd_times_pp_minus_srad2_sreg, inner_sreg)
+
+	# compare inner against 0 => valid_sreg = inner_sreg >= ZERO_REG
+	instructions += gte(inner_sreg, ZERO_REG, valid_sreg)
+
+	# sqrt(inner) => sqrt_inner_sreg = sqrt(inner_sreg) if valid_sreg
+	instructions += sqrt(inner_sreg, sqrt_inner_sreg, valid_sreg)
+
+	# t = dp - sqrt(inner) => t_sreg = dp_sreg - sqrt_inner_sreg if valid_sreg
+	instructions += ssub(dp_sreg, sqrt_inner_sreg, t_sreg, valid_sreg)
+
+	# compare t against 0 => valid_sreg = t_sreg >= ZERO_REG if valid_sreg
+	instructions += gte(t_sreg, ZERO_REG, valid_sreg, valid_sreg)
+
+	# t * d => t_d_vreg = ray_dir_vreg * t_sreg if valid_sreg
+	instructions += vmult(ray_dir_vreg, t_sreg, t_d_vreg, valid_sreg)
+
+	# t * d - p => t_d_minus_p_vreg = t_d_vreg - p_vreg if valid_sreg
+	instructions += sub(t_d_vreg, p_vreg, t_d_minus_p_vreg, valid_sreg)
+
+	# normal = normalize(t * d - p) => hit_info_normal_vreg = normalize(t_d_minus_p_vreg) if valid_sreg
+	instructions += norm(t_d_minus_p_vreg, hit_info_normal_vreg, valid_sreg)
+
+	# info.color = s.color if valid_sreg => hit_info_color_vreg = sphere_color_vreg + 0 if valid_sreg
+	instructions += add(sphere_color_vreg, ZERO_REG, hit_info_color_vreg, valid_sreg)
+
+	# info.ray.pos = ray.pos if valid_sreg => hit_info_ray_pos_vreg = ray_pos_vreg + 0 if valid_sreg
+	instructions += add(ray_pos_vreg, ZERO_REG, hit_info_ray_pos_vreg, valid_sreg)
+
+	# info.ray.dir = ray.dir if valid_sreg => hit_info_ray_pos_vreg = ray_pos_vreg + 0 if valid_sreg
+	instructions += add(ray_dir_vreg, ZERO_REG, hit_info_ray_dir_vreg, valid_sreg)
+
+	# info.t = t if valid_sreg => hit_info_ray_pos_vreg = t_sreg + 0 if valid_sreg
+	instructions += sadd(t_sreg, ZERO_REG, hit_info_t_sreg, valid_sreg)
+
+	return instructions
+
+def shoot_ray(in_vreg_ray_origin,
+			  in_vreg_ray_dir,
+			  in_spheres_regs,
+			  inout_hitinfo_regs,
+			  out_sreg_updated,
+			  free_vregs,
+			  free_sregs):
+	instructions = []
+	assert(len(free_vregs) >= 3)
+	assert(len(free_sregs) >= 6)
+	vreg_temp_normal = free_vregs[0]
+	sreg_tmp_t = free_sregs[0]
+	sreg_tmp_valid = free_sregs[1]
+
+	(vreg_info_color, vreg_info_normal, vreg_info_ray_origin, vreg_info_ray_dir, sreg_info_t) = inout_hitinfo_regs
+
+	# bool updated = false => out_sreg_updated = ZERO_REG + ZERO_REG
+	instructions.append(nonimm("sadd", ZERO_REG, ZERO_REG, out_sreg_updated))
+
+	for sphere in in_spheres_regs:
+		(vreg_sphere_pos, sreg_sphere_rad, vreg_sphere_color) = sphere
+
+		instructions += ray_hit_sphere(in_vreg_ray_origin,
+									   in_vreg_ray_dir,
+									   vreg_sphere_pos,
+									   sreg_sphere_rad,
+									   vreg_temp_normal,
+									   sreg_tmp_t,
+									   sreg_tmp_valid,
+									   free_vregs[1:],
+									   free_sregs[2:])
+
+		# compare sphere_info.t against info.t using the same valid bit => sreg_tmp_valid = sreg_tmp_t < sreg_info_t
+		instructions.append(nonimm("less", sreg_tmp_t, sreg_info_t, sreg_tmp_valid, sreg_tmp_valid))
+
+		# if we want to save this value, sreg_tmp_valid will be high
+		# sphere info for movement:
+		#	- sphere_info.color = vreg_sphere_color => vreg_info_color
+		#	- sphere_info.normal = vreg_temp_normal => vreg_info_normal
+		#	- sphere_info.ray.origin = in_vreg_ray_origin => vreg_info_ray_origin
+		#	- sphere_info.ray.dir = in_vreg_ray_dir => vreg_info_ray_dir
+		#	- sphere_info.t = sreg_tmp_t => sreg_info_t
+		instructions.append(nonimm("add", vreg_sphere_color, ZERO_REG, vreg_info_color, sreg_tmp_valid))
+		instructions.append(nonimm("add", vreg_temp_normal, ZERO_REG, vreg_info_normal, sreg_tmp_valid))
+		instructions.append(nonimm("add", in_vreg_ray_origin, ZERO_REG, vreg_info_ray_origin, sreg_tmp_valid))
+		instructions.append(nonimm("add", in_vreg_ray_dir, ZERO_REG, vreg_info_ray_dir, sreg_tmp_valid))
+		instructions.append(nonimm("sadd", sreg_tmp_t, ZERO_REG, sreg_info_t, sreg_tmp_valid))
+
+		# Set the updated register high
+		instructions.append(imm("addi", 1, ZERO_REG, out_sreg_updated, sreg_tmp_valid))
+
+def trace_ray():
+	pass
+
+def main_image():
+	
+
+
+def test_ray_hit_sphere():
+	vreg_ray_origin = 2
+	vreg_ray_dir = 3
+	vreg_sphere_pos = 4
+	sreg_sphere_rad = 2
+	vreg_norm_vec = 1
+	sreg_t = 1
+	sreg_inner_valid = 3
+	free_vregs = [5, 6]
+	free_sregs = [4, 5, 6, 7]
+
+	ray_origin = (0, 0, 0)
+	ray_direction = (4, 4, 2)
+	ray_direction_normal = norm_vec(ray_direction)
+	sphere_pos = (10, 9, 10)
+	sphere_rad = 6
+
+	normal_vec, t, inner_valid = expected_ray_hit_sphere(ray_origin, ray_direction_normal, sphere_pos, sphere_rad)
+
+	print("Expected: normal_vec = " + str(normal_vec) + "; t = " + str(t) + "; inner valid: " + str(inner_valid))
+
+	instructions = []
+	instructions += load_vector(ray_origin, vreg_ray_origin)
+	instructions += load_vector_normal(ray_direction, vreg_ray_dir)
+	instructions += load_vector(sphere_pos, vreg_sphere_pos)
+	instructions += load_scalar(sphere_rad, sreg_sphere_rad)
+
+	instructions += ray_hit_sphere(vreg_ray_origin,
+								   vreg_ray_dir,
+								   vreg_sphere_pos,
+								   sreg_sphere_rad,
+								   vreg_norm_vec,
+								   sreg_t,
+								   sreg_inner_valid,
+								   free_vregs,
+								   free_sregs)
+	return instructions
+
+
+if __name__ == '__main__':
+	instructions = test_ray_hit_sphere()
+
+	with open('unit_tests/shader.csv', "w+") as output_file:
+		output_file.write("\n".join(instructions))
