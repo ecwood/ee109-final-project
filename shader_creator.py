@@ -33,7 +33,10 @@ ZERO_REG = "zero"
 
 BACKGROUND_COLOR = (128, 128, 128) # Gray
 UNSEEN_COLOR = (0, 0, 0) # Black
-BLUE_COLOR = (0, 0, 255) #
+BLUE_COLOR = (0, 0, 255) # Blue
+
+PIXEL_ROWS = 100
+PIXEL_COLS = 100
 
 VECTOR_REGISTERS = {ZERO_REG: 0,
 					"out_color": 1,
@@ -640,7 +643,14 @@ def trace_ray(ray, time):
 	return instructions
 
 def main_image():
-	pass
+	instructions = []
+
+	out_color_vreg = "out_color"
+
+	# initial color of black
+	instructions += load_vector(UNSEEN_COLOR, out_color_vreg)
+
+	return instructions
 
 def test_ray_hit_sphere():
 	instructions = []

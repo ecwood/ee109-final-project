@@ -41,7 +41,15 @@ import spatial.dsl._
 
       Foreach (0 until pixel_rows) { row =>
         Foreach (0 until pixel_columns) { col =>
-          Foreach (0 until registers) { i =>
+          vec_regs(row, col, 0) = Vector3(0, 0, 0)
+          vec_regs(row, col, 1) = Vector3(0, 0, 0)
+          vec_regs(row, col, 2) = Vector3(row.to[RegType], col.to[RegType], 0)
+
+          sca_regs(row, col, 0) = 0
+          sca_regs(row, col, 1) = 0
+          sca_regs(row, col, 2) = 0
+
+          Foreach (3 until registers) { i =>
             vec_regs(row, col, i) = Vector3(0, 0, 0)
             sca_regs(row, col, i) = 0
           }
@@ -72,12 +80,12 @@ import spatial.dsl._
             val sca_compare_choice = SRAM[RegType](2)
 
             // Decoding the instruction and storing it as an instruction (for clarity)
-            val comp = inst_sram(i, 5) * 16 + inst_sram(i, 6) * 8 + inst_sram(i, 7) * 4 + inst_sram(i, 8) * 2 + inst_sram(i, 9)
-            val op = inst_sram(i, 10) * 16 + inst_sram(i, 11) * 8 + inst_sram(i, 12) * 4 + inst_sram(i, 13) * 2 + inst_sram(i, 14)
+            val comp = inst_sram(i, 3) * 16 + inst_sram(i, 4) * 8 + inst_sram(i, 5) * 4 + inst_sram(i, 6) * 2 + inst_sram(i, 7)
+            val op = inst_sram(i, 8) * 16 + inst_sram(i, 9) * 8 + inst_sram(i, 10) * 4 + inst_sram(i, 11) * 2 + inst_sram(i, 12)
             val src1 = inst_sram(i, 17) * 16 + inst_sram(i, 18) * 8 + inst_sram(i, 19) * 4 + inst_sram(i, 20) * 2 + inst_sram(i, 21)
             val src2 = inst_sram(i, 22) * 16 + inst_sram(i, 23) * 8 + inst_sram(i, 24) * 4 + inst_sram(i, 25) * 2 + inst_sram(i, 26)
             val dest = inst_sram(i, 27) * 16 + inst_sram(i, 28) * 8 + inst_sram(i, 29) * 4 + inst_sram(i, 30) * 2 + inst_sram(i, 31)
-            val immediate = inst_sram(i, 15) * 64 + inst_sram(i, 16) * 32 + inst_sram(i, 17) * 16 + inst_sram(i, 18) * 8 + inst_sram(i, 19) * 4 + inst_sram(i, 20) * 2 + inst_sram(i, 21)
+            val immediate = inst_sram(i, 13).to[RegType] * 256.to[RegType] + inst_sram(i, 14).to[RegType] * 128.to[RegType] + inst_sram(i, 15).to[RegType] * 64.to[RegType] + inst_sram(i, 16).to[RegType] * 32.to[RegType] + inst_sram(i, 17).to[RegType] * 16.to[RegType] + inst_sram(i, 18).to[RegType] * 8.to[RegType] + inst_sram(i, 19).to[RegType] * 4.to[RegType] + inst_sram(i, 20).to[RegType] * 2.to[RegType] + inst_sram(i, 21).to[RegType]
 
             val vec_reg_src1 = vec_regs(row, col, src1.to[Int])
             val vec_reg_src2 = vec_regs(row, col, src2.to[Int])
