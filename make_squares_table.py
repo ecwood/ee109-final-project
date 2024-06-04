@@ -1,6 +1,6 @@
 import json
 
-MAX_ROOT = 64
+MAX_ROOT = 256
 MAX_SQUARE = pow(MAX_ROOT, 2)
 
 def generate_squares():

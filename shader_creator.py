@@ -31,12 +31,12 @@ DELIM = ","
 
 ZERO_REG = "zero"
 
-BACKGROUND_COLOR = (128, 128, 128) # Gray
+BACKGROUND_COLOR = (2, 2, 2) # Gray
 UNSEEN_COLOR = (0, 0, 0) # Black
-BLUE_COLOR = (0, 0, 255) # Blue
+BLUE_COLOR = (0, 0, 4) # Blue
 
-PIXEL_ROWS = 100
-PIXEL_COLS = 100
+PIXEL_ROWS = 10
+PIXEL_COLS = 10
 
 VECTOR_REGISTERS = {ZERO_REG: 0,
 					"out_color": 1,
@@ -382,13 +382,14 @@ def load_scalar(sca, reg):
 def load_inf(reg):
 	instructions = []
 
-	max_imm = pow(2, IMM_BITS) - 1
+	# max_imm = pow(2, IMM_BITS) - 1
+	max_imm = 256
 
-	instructions += sadd(max_imm, ZERO_REG, reg) # reg = 511
-	instructions += smult(reg, reg, reg) # reg = 261121
-	instructions += sadd(reg, reg, reg) # reg = 522242
-	instructions += sadd(reg, reg, reg) # reg = 1044484
-	instructions += sadd(reg, reg, reg) # reg = 2088968
+	instructions += addi(max_imm, ZERO_REG, reg) # reg = 511
+	# instructions += smult(reg, reg, reg) # reg = 261121
+	# instructions += sadd(reg, reg, reg) # reg = 522242
+	# instructions += sadd(reg, reg, reg) # reg = 1044484
+	# instructions += sadd(reg, reg, reg) # reg = 2088968
 
 	return instructions
 
@@ -538,7 +539,7 @@ def shoot_ray(ray, hit_info, spheres, hit_info_updated):
 		instructions += ray_hit_sphere(ray, sphere, SPHERE_INFO, valid_hit_sreg)
 
 		# compare sphere_info.t against info.t using the same valid bit => valid_hit_sreg = sphere_info_t_sreg < hit_info_t_sreg
-		instructions += "less"(sphere_info_t_sreg, hit_info_t_sreg, valid_hit_sreg, valid_hit_sreg)
+		instructions += less(sphere_info_t_sreg, hit_info_t_sreg, valid_hit_sreg, valid_hit_sreg)
 
 		# if we want to save this value, valid_hit_sreg will be high
 		# sphere info for movement:
@@ -570,7 +571,7 @@ def trace_ray(ray, time):
 	light_pos_vreg = "light_pos"
 	hit_pos_vreg = "hit_pos"
 	light_dir_vreg = "light_dir"
-	trace_ray_color = "trace_ray_return"
+	trace_ray_color_vreg = "trace_ray_return"
 
 	r_dir_time_closest_info_t_vreg = "vtmp1"
 	light_minus_hit_pos_vreg = "vtmp2"
@@ -596,7 +597,7 @@ def trace_ray(ray, time):
 	instructions += gte(closest_info_t_sreg, inf_sreg, ray_nohit_sreg) # store the no hit
 
 	# Return the background color if there was no hit
-	instructions += load_vector(BACKGROUND_COLOR, trace_ray_color, ray_nohit_sreg)
+	instructions += load_vector(BACKGROUND_COLOR, trace_ray_color_vreg, ray_nohit_sreg)
 
 	# load light_pos if ray_hit_sreg
 	instructions += load_vector(light_pos_vec, light_pos_vreg, ray_hit_sreg)
@@ -633,12 +634,12 @@ def trace_ray(ray, time):
 
 	# if shoot_ray_updated_sreg and ray_hit_sreg (from before), the output should be black
 	# start by adding this, then see if we should override
-	instructions += load_vector(UNSEEN_COLOR, trace_ray_color, ray_hit_sreg)
+	instructions += load_vector(UNSEEN_COLOR, trace_ray_color_vreg, ray_hit_sreg)
 
 	instructions += gte(ZERO_REG, shoot_ray_updated_sreg, ray_hit_sreg, ray_hit_sreg) # in this case, there was a real hit, return the closest color
 
 	# if hit is still high, we return the color
-	instructions += add(closest_info_color_vreg, trace_ray_color, trace_ray_color, ray_hit_sreg)
+	instructions += add(closest_info_color_vreg, trace_ray_color_vreg, trace_ray_color_vreg, ray_hit_sreg)
 
 	return instructions
 
@@ -646,9 +647,46 @@ def main_image():
 	instructions = []
 
 	out_color_vreg = "out_color"
+	frag_coor_vreg = "frag_coor"
+	uv_vreg = "uv"
+	one_by_one_vreg = "vtmp1"
+	negative_1z_vreg = "vtmp2"
+	vect_to_norm_vreg = "vtmp3"
+	divisor = "stmp1"
+	trace_ray_color_vreg = "trace_ray_return"
+
+	sphere = ((1, -1, -5), BLUE_COLOR, 1)
+
+	(input_ray_pos_vreg, input_ray_dir_vreg) = INPUT_RAY
 
 	# initial color of black
 	instructions += load_vector(UNSEEN_COLOR, out_color_vreg)
+
+	# load the sphere
+	instructions += load_sphere(sphere, SPHERE)
+
+	# move the resolution divsor into a register
+	instructions += load_scalar(PIXEL_ROWS, divisor)
+
+	# create uv and add it to itself (2uv, so then can shift by 1)
+	instructions += vdiv(frag_coor_vreg, divisor, uv_vreg)
+	instructions += add(uv_vreg, uv_vreg, uv_vreg)
+	instructions += load_vector((1, 1, 0), one_by_one_vreg)
+	instructions += sub(uv_vreg, one_by_one_vreg, uv_vreg)
+
+	# create (uv.x, uv.y, -1)
+	instructions += load_vector((0, 0, -1), negative_1z_vreg)
+	instructions += add(uv_vreg, negative_1z_vreg, vect_to_norm_vreg)
+	instructions += norm(vect_to_norm_vreg, input_ray_dir_vreg)
+
+	# initialize input_ray_pos_vreg at 0
+	instructions += load_vector((0, 0, 0), input_ray_pos_vreg)
+
+	# trace the ray now
+	instructions += trace_ray(INPUT_RAY, 0)
+
+	# move the trace_ray_color_vreg into out_color_vreg
+	instructions += add(trace_ray_color_vreg, ZERO_REG, out_color_vreg)
 
 	return instructions
 
@@ -682,7 +720,7 @@ def test_ray_hit_sphere():
 	return instructions
 
 if __name__ == '__main__':
-	instructions = test_ray_hit_sphere()
+	instructions = main_image()
 
 	with open('unit_tests/shader.csv', "w+") as output_file:
 		output_file.write("\n".join(instructions))

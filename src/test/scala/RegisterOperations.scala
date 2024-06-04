@@ -13,14 +13,14 @@ import spatial.dsl._
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
-  val num_instructions = 39
+  val num_instructions = 110
   val num_vec_elements = 3
   val num_bits = 32
-  val pixel_rows = 1
-  val pixel_columns = 1
+  val pixel_rows = 10
+  val pixel_columns = 10
   val registers = 32
   val num_operations = 19
-  val square_root_table_elements = 2000 // For square root calculating, up to 4096 but takes a lot longer
+  val square_root_table_elements = 65536 // For square root calculating, up to 4096 but takes a lot longer
   val square_root_table_cols = 2
 
   def main(args: Array[String]): Unit = {
@@ -73,7 +73,7 @@ import spatial.dsl._
       val vec_operations = SRAM[Vector3](pixel_rows, pixel_columns, num_operations)
       val sca_operations = SRAM[RegType](pixel_rows, pixel_columns, num_operations)
 
-      Foreach (0 until pixel_rows) { row =>
+      Foreach (0 until pixel_rows par 5) { row =>
         Foreach (0 until pixel_columns) { col =>
           Foreach (0 until num_instructions) { i =>
             val vec_compare_choice = SRAM[Vector3](2)
@@ -127,7 +127,7 @@ import spatial.dsl._
             val abs_src2 = SRAM[Int](2)
             abs_src2(0) = sca_reg_src2.to[Int]
             abs_src2(1) = (sca_reg_src2.to[SubType] * -1).to[Int]
-            val is_src2_negative = (sca_reg_src2 < 1).to[Int]
+            val is_src2_negative = (sca_reg_src2 < 0).to[Int]
 
             val ts_for_src2_sca_square = squares_for_square_roots(abs_src2(is_src2_negative))
             val ts_for_src2_sca_ = (ts_for_src2_sca_square * ts_for_src2_sca_square).to[RegType]
@@ -206,10 +206,10 @@ import spatial.dsl._
             vec_regs(row, col, dest.to[Int]) = vec_compare_choice(compare_flag)
             sca_regs(row, col, dest.to[Int]) = sca_compare_choice(compare_flag)
 
-            internal_out(row, col, i, 0) = vec_regs(row, col, 23).x
-            internal_out(row, col, i, 1) = vec_regs(row, col, 23).y
-            internal_out(row, col, i, 2) = vec_regs(row, col, 23).z
-            internal_out(row, col, i, 3) = sca_regs(row, col, 4)
+            internal_out(row, col, i, 0) = vec_regs(row, col, 1).x
+            internal_out(row, col, i, 1) = vec_regs(row, col, 1).y
+            internal_out(row, col, i, 2) = vec_regs(row, col, 1).z
+            internal_out(row, col, i, 3) = sca_regs(row, col, 1)
           }
         }
       }

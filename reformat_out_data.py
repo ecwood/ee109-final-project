@@ -7,12 +7,12 @@ ENDING_LINE = "ENDING DATA"
 
 REPLACE_STRING = "[[34minfo[0m] "
 
-FILENAME = "temp_output.txt"
+FILENAME = "first_full_attempt.txt"
 
-NUM_ROWS = 1
-NUM_COLS = 1
+NUM_ROWS = 10
+NUM_COLS = 10
 NUM_ENTRIES = 4
-NUM_INSTRUCTIONS = 28
+NUM_INSTRUCTIONS = 110
 
 def reformat(old_data):
 	new_data = dict()
@@ -51,6 +51,17 @@ def make_test_array(b_val):
 
 	return new_array
 
+def make_test_array2():
+	SIZE = 256
+	b_val = 255
+	new_array = [None] * SIZE
+	for row in range(0, SIZE):
+		new_array[row] = [None] * SIZE
+		for col in range(0, SIZE):
+			new_array[row][col] = [0, 1, row]
+
+	return new_array
+
 def make_test_stream():
 	data_stream = list()
 	for b_val in range(0, 256, 10):
@@ -59,7 +70,7 @@ def make_test_stream():
 
 
 def show_image(pixel_array):
-	plt.imshow(make_test_array(100))
+	plt.imshow(pixel_array)
 	plt.axis("off")
 	plt.show()
 
@@ -98,4 +109,4 @@ if __name__ == '__main__':
 		print("Instruction", inst)
 		print_array(reformatted_data[inst])
 
-	# plot_images(make_test_stream())
+	show_image(make_test_array2())
