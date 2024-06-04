@@ -1,10 +1,11 @@
 import math
 
-NOTHING = ["0"] * 5
-EMPTY_ON_NONIMM_BITS = 2
+NOTHING = ["0"] * 3
+EMPTY_ON_NONIMM_BITS = 4
 EMPTY_ON_NONIMM = ["0"] * EMPTY_ON_NONIMM_BITS
 OPERATIONS_BITS = 5
 REGISTER_BITS = 5
+IMM_BITS = REGISTER_BITS + EMPTY_ON_NONIMM_BITS
 NONIMM_OPERATIONS = {"add": 0,
 			  		 "sub": 1,
 			  		 "norm": 2,
@@ -29,6 +30,10 @@ IMM_OPERATIONS = {"addi": 13,
 DELIM = ","
 
 ZERO_REG = "zero"
+
+BACKGROUND_COLOR = (128, 128, 128) # Gray
+UNSEEN_COLOR = (0, 0, 0) # Black
+BLUE_COLOR = (0, 0, 255) #
 
 VECTOR_REGISTERS = {ZERO_REG: 0,
 					"out_color": 1,
@@ -130,7 +135,7 @@ def imm(operation, imm_val, src2, dest, comp=0):
 	nothing = NOTHING
 	comp_bits = decimal_to_binary(comp, REGISTER_BITS)
 	op_bits = decimal_to_binary(IMM_OPERATIONS[operation], OPERATIONS_BITS)
-	imm_bits = decimal_to_binary(imm_val, REGISTER_BITS + EMPTY_ON_NONIMM_BITS)
+	imm_bits = decimal_to_binary(imm_val, IMM_BITS)
 	src2_bits = decimal_to_binary(src2, REGISTER_BITS)
 	dest_bits = decimal_to_binary(dest, REGISTER_BITS)
 	binary = nothing + comp_bits + op_bits + imm_bits + src2_bits + dest_bits
@@ -303,30 +308,30 @@ def vaddiz(imm_val, src2, dest, comp=ZERO_REG):
 
 	return [imm(op, imm_val, src2_reg, dest_reg, comp_reg)]
 
-def load_vector(vec, reg):
+def load_vector(vec, reg, comp=ZERO_REG):
 	instructions = []
 	(x, y, z) = vec
 
 	# First, clear out any existing data
-	instructions += add(ZERO_REG, ZERO_REG, reg)
+	instructions += add(ZERO_REG, ZERO_REG, reg, comp)
 
 	# Put the negative values in
 	if x < 0:
-		instructions += vaddix(-1 * x, reg, reg)
+		instructions += vaddix(-1 * x, reg, reg, comp)
 	if y < 0:
-		instructions += vaddiy(-1 * y, reg, reg)
+		instructions += vaddiy(-1 * y, reg, reg, comp)
 	if z < 0:
-		instructions += vaddiz(-1 * z, reg, reg)
+		instructions += vaddiz(-1 * z, reg, reg, comp)
 
 	# Make them negative
-	instructions += sub(ZERO_REG, reg, reg)
+	instructions += sub(ZERO_REG, reg, reg, comp)
 
 	if x > 0:
-		instructions += vaddix(x, reg, reg)
+		instructions += vaddix(x, reg, reg, comp)
 	if y > 0:
-		instructions += vaddiy(y, reg, reg)
+		instructions += vaddiy(y, reg, reg, comp)
 	if z > 0:
-		instructions += vaddiz(z, reg, reg)
+		instructions += vaddiz(z, reg, reg, comp)
 
 	return instructions
 
@@ -370,6 +375,20 @@ def load_scalar(sca, reg):
 		instructions += addi(sca, ZERO_REG, reg)
 
 	return instructions
+
+def load_inf(reg):
+	instructions = []
+
+	max_imm = pow(2, IMM_BITS) - 1
+
+	instructions += sadd(max_imm, ZERO_REG, reg) # reg = 511
+	instructions += smult(reg, reg, reg) # reg = 261121
+	instructions += sadd(reg, reg, reg) # reg = 522242
+	instructions += sadd(reg, reg, reg) # reg = 1044484
+	instructions += sadd(reg, reg, reg) # reg = 2088968
+
+	return instructions
+
 
 def sub_vec(vec_a, vec_b):
 	(a_x, a_y, a_z) = vec_a
@@ -502,53 +521,123 @@ def ray_hit_sphere(ray, sphere, hit_info, valid_sreg):
 
 	return instructions
 
-def shoot_ray(in_vreg_ray_origin, in_vreg_ray_dir, in_spheres_regs, inout_hitinfo_regs, out_sreg_updated, free_vregs, free_sregs):
+def shoot_ray(ray, hit_info, spheres, hit_info_updated):
 	instructions = []
-	assert(len(free_vregs) >= 3)
-	assert(len(free_sregs) >= 6)
-	vreg_temp_normal = free_vregs[0]
-	sreg_tmp_t = free_sregs[0]
-	sreg_tmp_valid = free_sregs[1]
 
-	(vreg_info_color, vreg_info_normal, vreg_info_ray_origin, vreg_info_ray_dir, sreg_info_t) = inout_hitinfo_regs
+	(hit_info_color_vreg, hit_info_normal_vreg, hit_info_ray_pos_vreg, hit_info_ray_dir_vreg, hit_info_t_sreg) = hit_info
+	
+	# bool updated = false => hit_info_updated = ZERO_REG + ZERO_REG
+	instructions += sadd(ZERO_REG, ZERO_REG, hit_info_updated)
 
-	# bool updated = false => out_sreg_updated = ZERO_REG + ZERO_REG
-	instructions.append(nonimm("sadd", ZERO_REG, ZERO_REG, out_sreg_updated))
+	for sphere in spheres:
+		valid_hit_sreg = "ray_hit_sphere_valid"
+		(sphere_info_color_vreg, sphere_info_normal_vreg, sphere_info_ray_pos_vreg, sphere_info_ray_dir_vreg, sphere_info_t_sreg) = SPHERE_INFO
+		instructions += ray_hit_sphere(ray, sphere, SPHERE_INFO, valid_hit_sreg)
 
-	for sphere in in_spheres_regs:
-		(vreg_sphere_pos, sreg_sphere_rad, vreg_sphere_color) = sphere
+		# compare sphere_info.t against info.t using the same valid bit => valid_hit_sreg = sphere_info_t_sreg < hit_info_t_sreg
+		instructions += "less"(sphere_info_t_sreg, hit_info_t_sreg, valid_hit_sreg, valid_hit_sreg)
 
-		instructions += ray_hit_sphere(in_vreg_ray_origin,
-									   in_vreg_ray_dir,
-									   vreg_sphere_pos,
-									   sreg_sphere_rad,
-									   vreg_temp_normal,
-									   sreg_tmp_t,
-									   sreg_tmp_valid,
-									   free_vregs[1:],
-									   free_sregs[2:])
-
-		# compare sphere_info.t against info.t using the same valid bit => sreg_tmp_valid = sreg_tmp_t < sreg_info_t
-		instructions.append(nonimm("less", sreg_tmp_t, sreg_info_t, sreg_tmp_valid, sreg_tmp_valid))
-
-		# if we want to save this value, sreg_tmp_valid will be high
+		# if we want to save this value, valid_hit_sreg will be high
 		# sphere info for movement:
-		#	- sphere_info.color = vreg_sphere_color => vreg_info_color
-		#	- sphere_info.normal = vreg_temp_normal => vreg_info_normal
-		#	- sphere_info.ray.origin = in_vreg_ray_origin => vreg_info_ray_origin
-		#	- sphere_info.ray.dir = in_vreg_ray_dir => vreg_info_ray_dir
-		#	- sphere_info.t = sreg_tmp_t => sreg_info_t
-		instructions.append(nonimm("add", vreg_sphere_color, ZERO_REG, vreg_info_color, sreg_tmp_valid))
-		instructions.append(nonimm("add", vreg_temp_normal, ZERO_REG, vreg_info_normal, sreg_tmp_valid))
-		instructions.append(nonimm("add", in_vreg_ray_origin, ZERO_REG, vreg_info_ray_origin, sreg_tmp_valid))
-		instructions.append(nonimm("add", in_vreg_ray_dir, ZERO_REG, vreg_info_ray_dir, sreg_tmp_valid))
-		instructions.append(nonimm("sadd", sreg_tmp_t, ZERO_REG, sreg_info_t, sreg_tmp_valid))
+		#	- sphere_info.color = sphere_info_color_vreg => hit_info_color_vreg
+		#	- sphere_info.normal = sphere_info_normal_vreg => hit_info_normal_vreg
+		#	- sphere_info.ray.origin = sphere_info_ray_pos_vreg => hit_info_ray_pos_vreg
+		#	- sphere_info.ray.dir = sphere_info_ray_dir_vreg => hit_info_ray_dir_vreg
+		#	- sphere_info.t = sphere_info_t_sreg => hit_info_t_sreg
+		instructions += add(sphere_info_color_vreg, ZERO_REG, hit_info_color_vreg, valid_hit_sreg)
+		instructions += add(sphere_info_normal_vreg, ZERO_REG, hit_info_normal_vreg, valid_hit_sreg)
+		instructions += add(sphere_info_ray_pos_vreg, ZERO_REG, hit_info_ray_pos_vreg, valid_hit_sreg)
+		instructions += add(sphere_info_ray_dir_vreg, ZERO_REG, hit_info_ray_dir_vreg, valid_hit_sreg)
+		instructions += sadd(sphere_info_t_sreg, ZERO_REG, hit_info_t_sreg, valid_hit_sreg)
 
-		# Set the updated register high
-		instructions.append(imm("addi", 1, ZERO_REG, out_sreg_updated, sreg_tmp_valid))
+		# Set the updated register high if these changes were made
+		instructions += addi(1, ZERO_REG, hit_info_updated, valid_hit_sreg)
 
-def trace_ray():
-	pass
+	return instructions
+
+def trace_ray(ray, time):
+	instructions = []
+
+	light_pos_vec = (0, 2, -5)
+
+	shoot_ray_updated_sreg = "shoot_ray_updated"
+	inf_sreg = "stmp6"
+	ray_hit_sreg = "stmp7"
+	ray_nohit_sreg = "stmp8"
+	light_pos_vreg = "light_pos"
+	hit_pos_vreg = "hit_pos"
+	light_dir_vreg = "light_dir"
+	trace_ray_color = "trace_ray_return"
+
+	r_dir_time_closest_info_t_vreg = "vtmp1"
+	light_minus_hit_pos_vreg = "vtmp2"
+	norm_light_dir_dot_sreg = "stmp9"
+	color_compare = "stmp10"
+	color_scalar = "stmp11"
+
+	(ray_pos_vreg, ray_dir_vreg) = ray
+	light_ray = (hit_pos_vreg, light_dir_vreg)
+	(closest_info_color_vreg, closest_info_normal_vreg, closest_info_ray_pos_vreg, closest_info_ray_dir_vreg, closest_info_t_sreg) = CLOSEST_INFO
+	(light_info_color_vreg, light_info_normal_vreg, light_info_ray_pos_vreg, light_info_ray_dir_vreg, light_info_t_sreg) = LIGHT_INFO
+
+	# closest_info.t = INF => load_inf(inf_sreg) then move to closest_info_t_sreg and light_info_t_sreg
+	instructions += load_inf(inf_sreg)
+	instructions += sadd(inf_sreg, ZERO_REG, closest_info_t_sreg)
+	instructions += sadd(inf_sreg, ZERO_REG, light_info_t_sreg)
+
+	# shoot_ray(r, closest_info)
+	instructions += shoot_ray(ray, CLOSEST_INFO, [SPHERE], shoot_ray_updated_sreg)
+
+	# only continue if closest_info.t < INF
+	instructions += less(closest_info_t_sreg, inf_sreg, ray_hit_sreg) # store the hit
+	instructions += gte(closest_info_t_sreg, inf_sreg, ray_nohit_sreg) # store the no hit
+
+	# Return the background color if there was no hit
+	instructions += load_vector(BACKGROUND_COLOR, trace_ray_color, ray_nohit_sreg)
+
+	# load light_pos if ray_hit_sreg
+	instructions += load_vector(light_pos_vec, light_pos_vreg, ray_hit_sreg)
+
+	# r.dir * closest_info.t => r_dir_time_closest_info_t_vreg = ray_dir_vreg * closest_info_t_sreg if ray_hit_sreg
+	instructions += vmult(ray_dir_vreg, closest_info_t_sreg, r_dir_time_closest_info_t_vreg, ray_hit_sreg)
+
+	# hit_pos = r.pos + r.dir*closest_info.t => hit_pos_vreg = ray_pos_vreg + r_dir_time_closest_info_t_vreg if ray_hit_sreg
+	instructions += add(ray_pos_vreg, r_dir_time_closest_info_t_vreg, hit_pos_vreg, ray_hit_sreg)
+
+	# light_pos - hit_pos => light_minus_hit_pos_vreg = light_pos_vreg - hit_pos_vreg if ray_hit_sreg
+	instructions += sub(light_pos_vreg,  hit_pos_vreg, light_minus_hit_pos_vreg, ray_hit_sreg)
+
+	# light_dir = norm(light_pos - hit_pos) => light_dir_vreg = norm(light_minus_hit_pos_vreg) if ray_hit_sreg
+	instructions += norm(light_minus_hit_pos_vreg, light_dir_vreg, ray_hit_sreg)
+
+	# dot(closest_info.normal, light_dir) => norm_light_dir_dot_vreg = closest_info_normal_vreg * light_dir_vreg if ray_hit_sreg
+	instructions += dot(closest_info_normal_vreg, light_dir_vreg, norm_light_dir_dot_sreg, ray_hit_sreg)
+
+	# initialize color_scalar at 0
+	instructions += sadd(ZERO_REG, ZERO_REG, color_scalar, ray_hit_sreg)
+
+	# color_compare = norm_light_dir_dot_sreg >= ZERO_REG
+	instructions += gte(norm_light_dir_dot_sreg, ZERO_REG, color_compare, ray_hit_sreg)
+
+	# color_scalar is determined by color_compare; it will stay at zero unless color_compare is high
+	instructions += sadd(norm_light_dir_dot_sreg, ZERO_REG, color_scalar, color_compare)
+
+	# closest_info.color = closest_info.color * color_scalar
+	instructions += vmult(closest_info_color_vreg, color_scalar, closest_info_color_vreg, ray_hit_sreg)
+
+	# shoot_ray(light_ray, light_info)
+	instructions += shoot_ray(light_ray, LIGHT_INFO, [SPHERE], shoot_ray_updated_sreg)
+
+	# if shoot_ray_updated_sreg and ray_hit_sreg (from before), the output should be black
+	# start by adding this, then see if we should override
+	instructions += load_vector(UNSEEN_COLOR, trace_ray_color, ray_hit_sreg)
+
+	instructions += gte(ZERO_REG, shoot_ray_updated_sreg, ray_hit_sreg, ray_hit_sreg) # in this case, there was a real hit, return the closest color
+
+	# if hit is still high, we return the color
+	instructions += add(closest_info_color_vreg, trace_ray_color, trace_ray_color, ray_hit_sreg)
+
+	return instructions
 
 def main_image():
 	pass
@@ -581,7 +670,6 @@ def test_ray_hit_sphere():
 	instructions += ray_hit_sphere(ray_regs, sphere_regs, hit_info_regs, valid_sreg)
 
 	return instructions
-
 
 if __name__ == '__main__':
 	instructions = test_ray_hit_sphere()
