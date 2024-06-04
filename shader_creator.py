@@ -124,6 +124,26 @@ def decimal_to_binary(dec, bits):
 
 	return binary
 
+def binary_to_decimal(bits):
+	val = 0
+	length = len(bits)
+	for x in range(length):
+		multiplier = pow(2, length - 1 - x)
+		val += int(bits[x] == "1") * multiplier
+	return val
+
+
+def decode_instruction(inst_str):
+	inst = inst_str.split(DELIM)
+	comp = binary_to_decimal(inst[3:8])
+	op = binary_to_decimal(inst[8:13])
+	src1 = binary_to_decimal(inst[17:22])
+	src2 = binary_to_decimal(inst[22:27])
+	dest = binary_to_decimal(inst[27:31])
+	immediate = binary_to_decimal(inst[13:22])
+
+	return {"comp": comp, "op": op, "src1": src1, "src2": src2, "dest": dest, "immediate": immediate}
+
 def nonimm(operation, src1, src2, dest, comp=0):
 	nothing = NOTHING
 	comp_bits = decimal_to_binary(comp, REGISTER_BITS)
@@ -585,7 +605,7 @@ def trace_ray(ray, time):
 	(light_info_color_vreg, light_info_normal_vreg, light_info_ray_pos_vreg, light_info_ray_dir_vreg, light_info_t_sreg) = LIGHT_INFO
 
 	# closest_info.t = INF => load_inf(inf_sreg) then move to closest_info_t_sreg and light_info_t_sreg
-	instructions += load_inf(inf_sreg)
+	instructions += addi(100, ZERO_REG, inf_sreg)
 	instructions += sadd(inf_sreg, ZERO_REG, closest_info_t_sreg)
 	instructions += sadd(inf_sreg, ZERO_REG, light_info_t_sreg)
 
@@ -629,14 +649,14 @@ def trace_ray(ray, time):
 	# closest_info.color = closest_info.color * color_scalar
 	instructions += vmult(closest_info_color_vreg, color_scalar, closest_info_color_vreg, ray_hit_sreg)
 
-	# shoot_ray(light_ray, light_info)
-	instructions += shoot_ray(light_ray, LIGHT_INFO, [SPHERE], shoot_ray_updated_sreg)
+	# # shoot_ray(light_ray, light_info)
+	# instructions += shoot_ray(light_ray, LIGHT_INFO, [SPHERE], shoot_ray_updated_sreg)
 
-	# if shoot_ray_updated_sreg and ray_hit_sreg (from before), the output should be black
-	# start by adding this, then see if we should override
-	instructions += load_vector(UNSEEN_COLOR, trace_ray_color_vreg, ray_hit_sreg)
+	# # if shoot_ray_updated_sreg and ray_hit_sreg (from before), the output should be black
+	# # start by adding this, then see if we should override
+	# instructions += load_vector(UNSEEN_COLOR, trace_ray_color_vreg, ray_hit_sreg)
 
-	instructions += gte(ZERO_REG, shoot_ray_updated_sreg, ray_hit_sreg, ray_hit_sreg) # in this case, there was a real hit, return the closest color
+	# instructions += gte(ZERO_REG, shoot_ray_updated_sreg, ray_hit_sreg, ray_hit_sreg) # in this case, there was a real hit, return the closest color
 
 	# if hit is still high, we return the color
 	instructions += add(closest_info_color_vreg, trace_ray_color_vreg, trace_ray_color_vreg, ray_hit_sreg)
@@ -721,6 +741,8 @@ def test_ray_hit_sphere():
 
 if __name__ == '__main__':
 	instructions = main_image()
+
+	print(decode_instruction("0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,0,1,1"))
 
 	with open('unit_tests/shader.csv', "w+") as output_file:
 		output_file.write("\n".join(instructions))

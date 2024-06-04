@@ -13,7 +13,7 @@ import spatial.dsl._
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
-  val num_instructions = 110
+  val num_instructions = 79
   val num_vec_elements = 3
   val num_bits = 32
   val pixel_rows = 10
@@ -209,7 +209,7 @@ import spatial.dsl._
             internal_out(row, col, i, 0) = vec_regs(row, col, 1).x
             internal_out(row, col, i, 1) = vec_regs(row, col, 1).y
             internal_out(row, col, i, 2) = vec_regs(row, col, 1).z
-            internal_out(row, col, i, 3) = sca_regs(row, col, 1)
+            internal_out(row, col, i, 3) = sca_regs(row, col, 2)
           }
         }
       }

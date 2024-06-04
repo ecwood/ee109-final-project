@@ -12,7 +12,7 @@ FILENAME = "first_full_attempt.txt"
 NUM_ROWS = 10
 NUM_COLS = 10
 NUM_ENTRIES = 4
-NUM_INSTRUCTIONS = 110
+NUM_INSTRUCTIONS = 79
 
 def reformat(old_data):
 	new_data = dict()
@@ -83,6 +83,17 @@ def plot_images(data_stream):
 	
 	plt.show()
 
+def prep_array_for_show(array):
+	for row in range(0, NUM_ROWS):
+		for col in range(0, NUM_COLS):
+			array[row][col] = array[row][col][0:3]
+			array[row][col][0] = array[row][col][0]
+			array[row][col][1] = array[row][col][1]
+			array[row][col][2] = array[row][col][2]
+
+	return array
+
+
 if __name__ == '__main__':
 	save_lines = []
 	started = False
@@ -109,4 +120,7 @@ if __name__ == '__main__':
 		print("Instruction", inst)
 		print_array(reformatted_data[inst])
 
-	show_image(make_test_array2())
+	cleaned_up = prep_array_for_show(reformatted_data[79])
+
+	print_array(cleaned_up)
+	show_image(cleaned_up)
