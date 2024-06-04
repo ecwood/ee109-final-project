@@ -2,7 +2,7 @@ import spatial.dsl._
 
 @spatial class RegisterOperations extends SpatialTest {
   type RegType = FixPt[TRUE, _24, _8]
-  type InstructionFixed = FixPt[FALSE, _24, _0]
+  type InstructionFixed = FixPt[FALSE, _32, _0]
   type InstBit = FixPt[FALSE, _8, _0]
   type SubType = FixPt[TRUE, _23, _8]
 
@@ -13,12 +13,12 @@ import spatial.dsl._
   )
 
   // Number of instructions in the file (need a way for this to be dynamic)
-  val num_instructions = 28
+  val num_instructions = 39
   val num_vec_elements = 3
-  val num_bits = 24
+  val num_bits = 32
   val pixel_rows = 1
   val pixel_columns = 1
-  val registers = 16
+  val registers = 32
   val num_operations = 19
   val square_root_table_elements = 2000 // For square root calculating, up to 4096 but takes a lot longer
   val square_root_table_cols = 2
@@ -72,12 +72,12 @@ import spatial.dsl._
             val sca_compare_choice = SRAM[RegType](2)
 
             // Decoding the instruction and storing it as an instruction (for clarity)
-            val comp = inst_sram(i, 1) * 8 + inst_sram(i, 2) * 4 + inst_sram(i, 3) * 2 + inst_sram(i, 4)
-            val op = inst_sram(i, 5) * 16 + inst_sram(i, 6) * 8 + inst_sram(i, 7) * 4 + inst_sram(i, 8) * 2 + inst_sram(i, 9)
-            val src1 = inst_sram(i, 12) * 8 + inst_sram(i, 13) * 4 + inst_sram(i, 14) * 2 + inst_sram(i, 15)
-            val src2 = inst_sram(i, 16) * 8 + inst_sram(i, 17) * 4 + inst_sram(i, 18) * 2 + inst_sram(i, 19)
-            val dest = inst_sram(i, 20) * 8 + inst_sram(i, 21) * 4 + inst_sram(i, 22) * 2 + inst_sram(i, 23)
-            val immediate = inst_sram(i, 10) * 32 + inst_sram(i, 11) * 16 + inst_sram(i, 12) * 8 + inst_sram(i, 13) * 4 + inst_sram(i, 14) * 2 + inst_sram(i, 15)
+            val comp = inst_sram(i, 5) * 16 + inst_sram(i, 6) * 8 + inst_sram(i, 7) * 4 + inst_sram(i, 8) * 2 + inst_sram(i, 9)
+            val op = inst_sram(i, 10) * 16 + inst_sram(i, 11) * 8 + inst_sram(i, 12) * 4 + inst_sram(i, 13) * 2 + inst_sram(i, 14)
+            val src1 = inst_sram(i, 17) * 16 + inst_sram(i, 18) * 8 + inst_sram(i, 19) * 4 + inst_sram(i, 20) * 2 + inst_sram(i, 21)
+            val src2 = inst_sram(i, 22) * 16 + inst_sram(i, 23) * 8 + inst_sram(i, 24) * 4 + inst_sram(i, 25) * 2 + inst_sram(i, 26)
+            val dest = inst_sram(i, 27) * 16 + inst_sram(i, 28) * 8 + inst_sram(i, 29) * 4 + inst_sram(i, 30) * 2 + inst_sram(i, 31)
+            val immediate = inst_sram(i, 15) * 64 + inst_sram(i, 16) * 32 + inst_sram(i, 17) * 16 + inst_sram(i, 18) * 8 + inst_sram(i, 19) * 4 + inst_sram(i, 20) * 2 + inst_sram(i, 21)
 
             val vec_reg_src1 = vec_regs(row, col, src1.to[Int])
             val vec_reg_src2 = vec_regs(row, col, src2.to[Int])
@@ -198,10 +198,10 @@ import spatial.dsl._
             vec_regs(row, col, dest.to[Int]) = vec_compare_choice(compare_flag)
             sca_regs(row, col, dest.to[Int]) = sca_compare_choice(compare_flag)
 
-            internal_out(row, col, i, 0) = vec_regs(row, col, 1).x
-            internal_out(row, col, i, 1) = vec_regs(row, col, 1).y
-            internal_out(row, col, i, 2) = vec_regs(row, col, 1).z
-            internal_out(row, col, i, 3) = sca_regs(row, col, 1)
+            internal_out(row, col, i, 0) = vec_regs(row, col, 23).x
+            internal_out(row, col, i, 1) = vec_regs(row, col, 23).y
+            internal_out(row, col, i, 2) = vec_regs(row, col, 23).z
+            internal_out(row, col, i, 3) = sca_regs(row, col, 4)
           }
         }
       }

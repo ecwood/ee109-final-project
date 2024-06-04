@@ -256,7 +256,7 @@ def trace_ray():
 	pass
 
 def main_image():
-	
+	pass
 
 
 def test_ray_hit_sphere():

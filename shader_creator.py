@@ -1,7 +1,8 @@
 import math
 
-NOTHING = ["0"]
-EMPTY_ON_NONIMM = ["0"] * 2
+NOTHING = ["0"] * 5
+EMPTY_ON_NONIMM_BITS = 2
+EMPTY_ON_NONIMM = ["0"] * EMPTY_ON_NONIMM_BITS
 OPERATIONS_BITS = 5
 REGISTER_BITS = 5
 NONIMM_OPERATIONS = {"add": 0,
@@ -95,8 +96,12 @@ SCALAR_REGISTERS = {ZERO_REG: 0,
 					"stmp19": 30,
 					"stmp20": 31}
 
-
-# Test Vectors
+SPHERE = ("sphere_pos", "sphere_color", "sphere_rad")
+INPUT_RAY = ("input_ray_pos", "input_ray_dir")
+LIGHT_RAY = ("light_ray.pos", "light_ray.dir")
+CLOSEST_INFO = ("closest_info.color", "closest_info.normal", "closest_info.ray.pos", "closest_info.ray.dir", "closest_info.t")
+LIGHT_INFO = ("light_info.color", "light_info.normal", "light_info.ray.pos", "light_info.ray.dir", "light_info.t")
+SPHERE_INFO = ("sphere_info.color", "sphere_info.normal", "sphere_info.ray.pos", "sphere_info.ray.dir", "sphere_info.t")
 
 def decimal_to_binary(dec, bits):
 	binary = ["0"] * bits
@@ -112,11 +117,23 @@ def decimal_to_binary(dec, bits):
 	return binary
 
 def nonimm(operation, src1, src2, dest, comp=0):
-	binary = NOTHING + decimal_to_binary(comp, REGISTER_BITS) + decimal_to_binary(NONIMM_OPERATIONS[operation], OPERATIONS_BITS) + EMPTY_ON_NONIMM + decimal_to_binary(src1, REGISTER_BITS) + decimal_to_binary(src2, REGISTER_BITS) + decimal_to_binary(dest, REGISTER_BITS)
+	nothing = NOTHING
+	comp_bits = decimal_to_binary(comp, REGISTER_BITS)
+	op_bits = decimal_to_binary(NONIMM_OPERATIONS[operation], OPERATIONS_BITS)
+	src1_bits = decimal_to_binary(src1, REGISTER_BITS)
+	src2_bits = decimal_to_binary(src2, REGISTER_BITS)
+	dest_bits = decimal_to_binary(dest, REGISTER_BITS)
+	binary = NOTHING + comp_bits + op_bits + EMPTY_ON_NONIMM + src1_bits + src2_bits + dest_bits
 	return DELIM.join(binary)
 
-def imm(operation, imm, src2, dest, comp=0):
-	binary = NOTHING + decimal_to_binary(comp, REGISTER_BITS) + decimal_to_binary(IMM_OPERATIONS[operation], OPERATIONS_BITS) + decimal_to_binary(imm, 6) + decimal_to_binary(src2, REGISTER_BITS) + decimal_to_binary(dest, REGISTER_BITS)
+def imm(operation, imm_val, src2, dest, comp=0):
+	nothing = NOTHING
+	comp_bits = decimal_to_binary(comp, REGISTER_BITS)
+	op_bits = decimal_to_binary(IMM_OPERATIONS[operation], OPERATIONS_BITS)
+	imm_bits = decimal_to_binary(imm_val, REGISTER_BITS + EMPTY_ON_NONIMM_BITS)
+	src2_bits = decimal_to_binary(src2, REGISTER_BITS)
+	dest_bits = decimal_to_binary(dest, REGISTER_BITS)
+	binary = nothing + comp_bits + op_bits + imm_bits + src2_bits + dest_bits
 	return DELIM.join(binary)
 
 def add(src1, src2, dest, comp=ZERO_REG):
@@ -254,37 +271,37 @@ def gte(src1, src2, dest, comp=ZERO_REG):
 
 	return [nonimm(op, src1_reg, src2_reg, dest_reg, comp_reg)]
 
-def addi(imm, src2, dest, comp=ZERO_REG):
+def addi(imm_val, src2, dest, comp=ZERO_REG):
 	op = "addi"
 	src2_reg = SCALAR_REGISTERS[src2]
 	dest_reg = SCALAR_REGISTERS[dest]
 	comp_reg = SCALAR_REGISTERS[comp]
 
-	return [imm(op, imm, src2_reg, dest_reg, comp_reg)]
+	return [imm(op, imm_val, src2_reg, dest_reg, comp_reg)]
 
-def vaddix(imm, src2, dest, comp=ZERO_REG):
+def vaddix(imm_val, src2, dest, comp=ZERO_REG):
 	op = "vaddi.x"
 	src2_reg = VECTOR_REGISTERS[src2]
 	dest_reg = VECTOR_REGISTERS[dest]
 	comp_reg = SCALAR_REGISTERS[comp]
 
-	return [imm(op, imm, src2_reg, dest_reg, comp_reg)]
+	return [imm(op, imm_val, src2_reg, dest_reg, comp_reg)]
 
-def vaddiy(imm, src2, dest, comp=ZERO_REG):
+def vaddiy(imm_val, src2, dest, comp=ZERO_REG):
 	op = "vaddi.y"
 	src2_reg = VECTOR_REGISTERS[src2]
 	dest_reg = VECTOR_REGISTERS[dest]
 	comp_reg = SCALAR_REGISTERS[comp]
 
-	return [imm(op, imm, src2_reg, dest_reg, comp_reg)]
+	return [imm(op, imm_val, src2_reg, dest_reg, comp_reg)]
 
-def vaddiz(imm, src2, dest, comp=ZERO_REG):
+def vaddiz(imm_val, src2, dest, comp=ZERO_REG):
 	op = "vaddi.z"
 	src2_reg = VECTOR_REGISTERS[src2]
 	dest_reg = VECTOR_REGISTERS[dest]
 	comp_reg = SCALAR_REGISTERS[comp]
 
-	return [imm(op, imm, src2_reg, dest_reg, comp_reg)]
+	return [imm(op, imm_val, src2_reg, dest_reg, comp_reg)]
 
 def load_vector(vec, reg):
 	instructions = []
@@ -319,6 +336,29 @@ def load_vector_normal(vec, reg):
 
 	return instructions
 
+def load_ray(ray, ray_regs):
+	instructions = []
+
+	(ray_pos, ray_dir) = ray
+	(ray_pos_vreg, ray_dir_vreg) = ray_regs
+
+	instructions += load_vector(ray_pos, ray_pos_vreg)
+	instructions += load_vector_normal(ray_dir, ray_dir_vreg)
+
+	return instructions
+
+def load_sphere(sphere, sphere_regs):
+	instructions = []
+
+	(sphere_pos, sphere_color, sphere_rad) = sphere
+	(sphere_pos_vreg, sphere_color_vreg, sphere_rad_sreg) = sphere_regs
+
+	instructions += load_vector(sphere_pos, sphere_pos_vreg)
+	instructions += load_vector(sphere_color, sphere_color_vreg)
+	instructions += load_scalar(sphere_rad, sphere_rad_sreg)
+
+	return instructions
+
 def load_scalar(sca, reg):
 	instructions = []
 
@@ -349,7 +389,7 @@ def norm_vec(vec):
 
 	return (x / mag, y / mag, z / mag)
 
-def vmult(vec, sca):
+def vmult_vec(vec, sca):
 	(x, y, z) = vec
 
 	return (x * sca, y * sca, z * sca)
@@ -374,7 +414,7 @@ def expected_ray_hit_sphere(ray_origin, ray_direction, sphere_pos, sphere_rad):
 		normal = norm_vec((1, 1, 1))
 	else:
 		t = dp - math.sqrt(inner)
-		normal = norm_vec(sub_vec(vmult(d, t), p))
+		normal = norm_vec(sub_vec(vmult_vec(d, t), p))
 
 	return normal, t, (inner >= 0 and t >= 0)
 
@@ -393,7 +433,7 @@ def ray_hit_sphere(ray, sphere, hit_info, valid_sreg):
 	inner_sreg = "ray_hit_sphere_inner"
 	t_sreg = "ray_hit_sphere_t"
 	srad_srad_sreg = "stmp1"
-	pp_minus_srad2_sreg "stmp2"
+	pp_minus_srad2_sreg = "stmp2"
 	dd_times_pp_minus_srad2_sreg = "stmp3"
 	dp_dp_sreg = "stmp4"
 	sqrt_inner_sreg = "stmp5"
@@ -462,13 +502,7 @@ def ray_hit_sphere(ray, sphere, hit_info, valid_sreg):
 
 	return instructions
 
-def shoot_ray(in_vreg_ray_origin,
-			  in_vreg_ray_dir,
-			  in_spheres_regs,
-			  inout_hitinfo_regs,
-			  out_sreg_updated,
-			  free_vregs,
-			  free_sregs):
+def shoot_ray(in_vreg_ray_origin, in_vreg_ray_dir, in_spheres_regs, inout_hitinfo_regs, out_sreg_updated, free_vregs, free_sregs):
 	instructions = []
 	assert(len(free_vregs) >= 3)
 	assert(len(free_sregs) >= 6)
@@ -517,45 +551,35 @@ def trace_ray():
 	pass
 
 def main_image():
-	
-
+	pass
 
 def test_ray_hit_sphere():
-	vreg_ray_origin = 2
-	vreg_ray_dir = 3
-	vreg_sphere_pos = 4
-	sreg_sphere_rad = 2
-	vreg_norm_vec = 1
-	sreg_t = 1
-	sreg_inner_valid = 3
-	free_vregs = [5, 6]
-	free_sregs = [4, 5, 6, 7]
+	instructions = []
+
+	ray_regs = INPUT_RAY
+	sphere_regs = SPHERE
+	hit_info_regs = SPHERE_INFO
+	valid_sreg = "ray_hit_sphere_valid"
 
 	ray_origin = (0, 0, 0)
 	ray_direction = (4, 4, 2)
+	ray = (ray_origin, ray_direction)
 	ray_direction_normal = norm_vec(ray_direction)
+
 	sphere_pos = (10, 9, 10)
+	sphere_color = (1, 1, 1)
 	sphere_rad = 6
+	sphere = (sphere_pos, sphere_color, sphere_rad)
 
 	normal_vec, t, inner_valid = expected_ray_hit_sphere(ray_origin, ray_direction_normal, sphere_pos, sphere_rad)
 
 	print("Expected: normal_vec = " + str(normal_vec) + "; t = " + str(t) + "; inner valid: " + str(inner_valid))
 
-	instructions = []
-	instructions += load_vector(ray_origin, vreg_ray_origin)
-	instructions += load_vector_normal(ray_direction, vreg_ray_dir)
-	instructions += load_vector(sphere_pos, vreg_sphere_pos)
-	instructions += load_scalar(sphere_rad, sreg_sphere_rad)
+	
+	instructions += load_ray(ray, ray_regs)
+	instructions += load_sphere(sphere, sphere_regs)
+	instructions += ray_hit_sphere(ray_regs, sphere_regs, hit_info_regs, valid_sreg)
 
-	instructions += ray_hit_sphere(vreg_ray_origin,
-								   vreg_ray_dir,
-								   vreg_sphere_pos,
-								   sreg_sphere_rad,
-								   vreg_norm_vec,
-								   sreg_t,
-								   sreg_inner_valid,
-								   free_vregs,
-								   free_sregs)
 	return instructions
 
 
