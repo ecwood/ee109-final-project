@@ -675,7 +675,7 @@ def main_image():
 	divisor = "stmp1"
 	trace_ray_color_vreg = "trace_ray_return"
 
-	sphere = ((1, -1, -5), BLUE_COLOR, 1)
+	sphere = ((1, -1, -5), BLUE_COLOR, 2)
 
 	(input_ray_pos_vreg, input_ray_dir_vreg) = INPUT_RAY
 

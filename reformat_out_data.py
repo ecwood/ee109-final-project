@@ -7,7 +7,7 @@ ENDING_LINE = "ENDING DATA"
 
 REPLACE_STRING = "[[34minfo[0m] "
 
-FILENAME = "first_full_attempt.txt"
+FILENAME = "ten_by_ten.txt"
 
 NUM_ROWS = 10
 NUM_COLS = 10
@@ -87,9 +87,9 @@ def prep_array_for_show(array):
 	for row in range(0, NUM_ROWS):
 		for col in range(0, NUM_COLS):
 			array[row][col] = array[row][col][0:3]
-			array[row][col][0] = array[row][col][0]
-			array[row][col][1] = array[row][col][1]
-			array[row][col][2] = array[row][col][2]
+			array[row][col][0] = array[row][col][0] / 4
+			array[row][col][1] = array[row][col][1] / 4
+			array[row][col][2] = array[row][col][2] / 4
 
 	return array
 

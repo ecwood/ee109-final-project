@@ -36,8 +36,8 @@ import spatial.dsl._
 
     Accel {
       // Create the registers for each pixel
-      val vec_regs = SRAM[Vector3](pixel_rows, pixel_columns, registers).buffer
-      val sca_regs = SRAM[RegType](pixel_rows, pixel_columns, registers).buffer
+      val vec_regs = SRAM[Vector3](pixel_rows, pixel_columns, registers).nonbuffer
+      val sca_regs = SRAM[RegType](pixel_rows, pixel_columns, registers).nonbuffer
 
       Foreach (0 until pixel_rows) { row =>
         Foreach (0 until pixel_columns) { col =>
@@ -89,8 +89,10 @@ import spatial.dsl._
 
             val vec_reg_src1 = vec_regs(row, col, src1.to[Int])
             val vec_reg_src2 = vec_regs(row, col, src2.to[Int])
+            val vec_reg_dest = vec_regs(row, col, dest.to[Int])
             val sca_reg_src1 = sca_regs(row, col, src1.to[Int])
             val sca_reg_src2 = sca_regs(row, col, src2.to[Int])
+            val sca_reg_dest = sca_regs(row, col, dest.to[Int])
             val sca_reg_comp = sca_regs(row, col, comp.to[Int])
             val immediate_regtype = immediate.to[RegType]
 
@@ -160,40 +162,40 @@ import spatial.dsl._
             vec_operations(row, col, 0) = add_vectors
             vec_operations(row, col, 1) = sub_vectors
             vec_operations(row, col, 2) = normalize_vector
-            vec_operations(row, col, 3) = vec_regs(row, col, dest.to[Int])
-            vec_operations(row, col, 4) = vec_regs(row, col, dest.to[Int])
-            vec_operations(row, col, 5) = vec_regs(row, col, dest.to[Int])
+            vec_operations(row, col, 3) = vec_reg_dest
+            vec_operations(row, col, 4) = vec_reg_dest
+            vec_operations(row, col, 5) = vec_reg_dest
             vec_operations(row, col, 6) = mult_vscalar
             vec_operations(row, col, 7) = div_vscalar
-            vec_operations(row, col, 8) = vec_regs(row, col, dest.to[Int])
-            vec_operations(row, col, 9) = vec_regs(row, col, dest.to[Int])
-            vec_operations(row, col, 10) = vec_regs(row, col, dest.to[Int])
-            vec_operations(row, col, 11) = vec_regs(row, col, dest.to[Int])
-            vec_operations(row, col, 12) = vec_regs(row, col, dest.to[Int])
-            vec_operations(row, col, 13) = vec_regs(row, col, dest.to[Int])
+            vec_operations(row, col, 8) = vec_reg_dest
+            vec_operations(row, col, 9) = vec_reg_dest
+            vec_operations(row, col, 10) = vec_reg_dest
+            vec_operations(row, col, 11) = vec_reg_dest
+            vec_operations(row, col, 12) = vec_reg_dest
+            vec_operations(row, col, 13) = vec_reg_dest
             vec_operations(row, col, 14) = addi_vector_x
             vec_operations(row, col, 15) = addi_vector_y
             vec_operations(row, col, 16) = addi_vector_z
-            vec_operations(row, col, 17) = vec_regs(row, col, dest.to[Int])
-            vec_operations(row, col, 18) = vec_regs(row, col, dest.to[Int])
+            vec_operations(row, col, 17) = vec_reg_dest
+            vec_operations(row, col, 18) = vec_reg_dest
 
-            sca_operations(row, col, 0) = sca_regs(row, col, dest.to[Int])
-            sca_operations(row, col, 1) = sca_regs(row, col, dest.to[Int])
-            sca_operations(row, col, 2) = sca_regs(row, col, dest.to[Int])
+            sca_operations(row, col, 0) = sca_reg_dest
+            sca_operations(row, col, 1) = sca_reg_dest
+            sca_operations(row, col, 2) = sca_reg_dest
             sca_operations(row, col, 3) = src2_mag
             sca_operations(row, col, 4) = src2_mag2
             sca_operations(row, col, 5) = dot_product
-            sca_operations(row, col, 6) = sca_regs(row, col, dest.to[Int])
-            sca_operations(row, col, 7) = sca_regs(row, col, dest.to[Int])
+            sca_operations(row, col, 6) = sca_reg_dest
+            sca_operations(row, col, 7) = sca_reg_dest
             sca_operations(row, col, 8) = sqrt_scalar
             sca_operations(row, col, 9) = add_scalar
             sca_operations(row, col, 10) = sub_scalar
             sca_operations(row, col, 11) = mult_scalar
             sca_operations(row, col, 12) = div_scalar
             sca_operations(row, col, 13) = addi_scalar
-            sca_operations(row, col, 14) = sca_regs(row, col, dest.to[Int])
-            sca_operations(row, col, 15) = sca_regs(row, col, dest.to[Int])
-            sca_operations(row, col, 16) = sca_regs(row, col, dest.to[Int])
+            sca_operations(row, col, 14) = sca_reg_dest
+            sca_operations(row, col, 15) = sca_reg_dest
+            sca_operations(row, col, 16) = sca_reg_dest
             sca_operations(row, col, 17) = less_than
             sca_operations(row, col, 18) = greater_than_or_equal
 
@@ -209,7 +211,7 @@ import spatial.dsl._
             internal_out(row, col, i, 0) = vec_regs(row, col, 1).x
             internal_out(row, col, i, 1) = vec_regs(row, col, 1).y
             internal_out(row, col, i, 2) = vec_regs(row, col, 1).z
-            internal_out(row, col, i, 3) = sca_regs(row, col, 2)
+            internal_out(row, col, i, 3) = sca_regs(row, col, 1)
           }
         }
       }
