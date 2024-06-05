@@ -20,7 +20,7 @@ import spatial.dsl._
   val pixel_columns = 10
   val registers = 32
   val num_operations = 19
-  val square_root_table_elements = 65536 // For square root calculating, up to 4096 but takes a lot longer
+  val square_root_table_elements = 10001 // For square root calculating, up to 4096 but takes a lot longer
   val square_root_table_cols = 2
 
   def main(args: Array[String]): Unit = {
@@ -32,7 +32,7 @@ import spatial.dsl._
     setMem(inst_dram, inst_host)
     setMem(square_map_dram, square_map_host)
 
-    val out = DRAM[RegType](pixel_rows, pixel_columns, num_instructions, num_vec_elements + 1)
+    val out = DRAM[RegType](pixel_rows, pixel_columns, num_vec_elements + 1)
 
     Accel {
       // Create the registers for each pixel
@@ -62,7 +62,7 @@ import spatial.dsl._
       val square_map_sram = SRAM[Int](square_root_table_elements, square_root_table_cols)
       square_map_sram load square_map_dram
 
-      val internal_out = SRAM[RegType](pixel_rows, pixel_columns, num_instructions, num_vec_elements + 1)
+      val internal_out = SRAM[RegType](pixel_rows, pixel_columns, num_vec_elements + 1)
 
       val squares_for_square_roots = SRAM[RegType](square_root_table_elements)
 
@@ -73,7 +73,7 @@ import spatial.dsl._
       val vec_operations = SRAM[Vector3](pixel_rows, pixel_columns, num_operations)
       val sca_operations = SRAM[RegType](pixel_rows, pixel_columns, num_operations)
 
-      Foreach (0 until pixel_rows par 5) { row =>
+      Foreach (0 until pixel_rows par 10) { row =>
         Foreach (0 until pixel_columns) { col =>
           Foreach (0 until num_instructions) { i =>
             val vec_compare_choice = SRAM[Vector3](2)
@@ -207,12 +207,11 @@ import spatial.dsl._
 
             vec_regs(row, col, dest.to[Int]) = vec_compare_choice(compare_flag)
             sca_regs(row, col, dest.to[Int]) = sca_compare_choice(compare_flag)
-
-            internal_out(row, col, i, 0) = vec_regs(row, col, 1).x
-            internal_out(row, col, i, 1) = vec_regs(row, col, 1).y
-            internal_out(row, col, i, 2) = vec_regs(row, col, 1).z
-            internal_out(row, col, i, 3) = sca_regs(row, col, 1)
           }
+          internal_out(row, col, 0) = vec_regs(row, col, 1).x
+          internal_out(row, col, 1) = vec_regs(row, col, 1).y
+          internal_out(row, col, 2) = vec_regs(row, col, 1).z
+          internal_out(row, col, 3) = sca_regs(row, col, 1)
         }
       }
 

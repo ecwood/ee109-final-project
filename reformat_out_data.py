@@ -12,7 +12,7 @@ FILENAME = "ten_by_ten.txt"
 NUM_ROWS = 10
 NUM_COLS = 10
 NUM_ENTRIES = 4
-NUM_INSTRUCTIONS = 79
+NUM_INSTRUCTIONS = 1
 
 def reformat(old_data):
 	new_data = dict()
@@ -120,7 +120,7 @@ if __name__ == '__main__':
 		print("Instruction", inst)
 		print_array(reformatted_data[inst])
 
-	cleaned_up = prep_array_for_show(reformatted_data[79])
+	cleaned_up = prep_array_for_show(reformatted_data[1])
 
 	print_array(cleaned_up)
 	show_image(cleaned_up)
