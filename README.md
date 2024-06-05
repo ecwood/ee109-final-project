@@ -1,17 +1,75 @@
 # Optimizations
 
-Variables |   |   |   |   | Overall Data | Important Data Components |   |   |   |   |  
--- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | --
-**Parallelization of Row Loop** | **Parallelization of Column Loop** | **Paralleization of Square Root Loading** | **Times Output Data is Saved** | **SRAM Square Load Chunks** | **Total Cycles per Accel Block** | **SRAM Load Square Map** | **Cycles/iter of Square Root Loading** | **Cycles/iter of Row Foreach** | **Cycles/iter of Column Foreach** | **Out Store Iterations** | **Notes**
-5 | 1 | 1 | Every loop | All | 4814846 | 3309613 | 65541 | 229569 | 114781 | 1200801 |  
-5 | 1 | 1 | At the end | All | 3628860 | 3309613 | 65541 | 229283 | 114638 | 15101 |  
-10 | 1 | 1 | At the end | All | 3514219 | 3309613 | 65541 | 114642 | 114638 | 15101 |  
-10 | 10 | 1 | At the end | All | KILLED |   |   |   |   |   |  
-10 | 2 | 1 | At the end | All | 3456909 | 3309613 | 65541 | 57332 | 57328 | 15101 | Took 16+ minutes
-10 | 1 | 1 | At the end | Blocks of 32, no parallelization | 3549023 | 2409961 | - | 114642 | 114638 | 15101 |  
-10 | 1 | 1 | At the end | Blocks of 32, parallelized factor of 32 | 3450207 | 3311145 | - | 114642 | 114638 | 15101 | Took 31+ minutes
-10 | 1 | 1 | At the end | All, but lowered number of things loaded | 654192 | 505121 | 10006 | 114642 | 114638 | 15101 |  
+## What optimizations have you tried?
+We performed all our our optimization testing on a 10x10 pixel, 79 instruction sample. This sample had a manageable initial length (rather than 30 minutes for a 50x50 grid to 1.5 hours for a 100x100 grid), so it was ideal for testing the influence of optimizations. One flaw with this, however, is that, with the larger grids, the square root loading becomes less important to both cycles/iter and BRAM. Therefore, our tests do not scale as well as we expected.
 
+Additionally, all of our data comes from Scalasim values (and the `compute_resource_utilization.py` script). We had significant issues with VCS and ZCU due to the memory intensity of our system. Please see [this section](#issues-with-vcs-and-zcu) for more information about these issues.
+
+The optimization variables that we considered were
+- Parallelization of the row loop (i.e. the foreach row controller)
+- Parallelization of the column loop (i.e. the foreach column controller)
+- Parallelization of the square root loading (i.e. the foreach square root table element controller)
+- Times the input data is saved (every loop or only the last loop)
+- SRAM square load chunks (i.e. how much of `square.csv` to load into SRAM at once and, eventually, how many things to load in general)
+
+Initially, we imagined that the first three would be the most significant, since they were clearly parallelizable loops. In particular, the row and column loops are designed to be run in parallel since this is a GPU style system, where every instruction is run on every pixel. However, they were less influential that we expected.
+
+After examining the cycle data, we noticed that saves to our output (not necessarily DRAM stores, but just to the SRAM that eventually is output) dominated. This was because we were outputting vector register 1 for every pixel and every instruction. While having the data from every instruction was instrumental in testing, we realized that it was unnecessary for a final version. Therefore, we switched it to only at the end and significantly improved both our BRAM and cycle count usage.
+
+After this, we tried increasing the parallelization of the row loop (it was already at `par 5` to speed up testing). This drastically increased our BRAM but improved our cycles/iter slightly. Once we added in parallelization of the column loop, we realized that this was not an effective strategy (the BRAM usage skyrocketed as did the runtime) while only modestly reducing our cycles/iter. This strategy was clearly not working.
+
+Finally, we recognized our cycles/iter was significantly impacted by the loading of the SRAM square map. First, we attempted to do this in pieces (chunks of 32). This increased our cycles/iter as well as our BRAM usage. Then, we tried parallelizing this (`par 32`), but this led our runtime to skyrocket (while adding modest drops to the cycles/iter and raising our BRAM usage). This strategy was not working. Therefore, we decided to evaluate which squares were actually needed. Since there weren't any values larger than 100 (so no more than 10000), we reasoned that as long as we had up to 10001, we would have enough. Sure enough, this did not cause issues with the 10x10 pixel grid and this drastically rudced our cycles/iter, runtime, and BRAM usage. While this solution did not scaled to 100x100 pixels, it gave us insight into the leading sources of waste in our system.
+
+Here is our testing data:
+
+Variables |   |   |   |   | Overall Data |   |   |   |   | Important Data Components |   |   |   |  
+-- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | --
+**Parallelization of Row Loop** | **Parallelization of Column Loop** | **Paralleization of Square Root Loading** | **Times Output Data is Saved** | **SRAM Square Load Chunks** | **Total Cycles per Accel Block** | **Runtime** | **BRAM** | **Reg** | **Ops** | **SRAM Load Square Map** | **Cycles/iter of Square Root Loading** | **Cycles/iter of Row Foreach** | **Cycles/iter of Column Foreach** | **Out Store Iterations**
+5 | 1 | 1 | Every loop | All | 4814846 | 3 minutes, 40 seconds | 28202352 | 288 | 972 | 3309613 | 65541 | 229569 | 114781 | 1200801
+5 | 1 | 1 | At the end | All | 3628860 | 3 minutes, 11 seconds | 27203952 | 288 | 1015 | 3309613 | 65541 | 229283 | 114638 | 15101
+10 | 1 | 1 | At the end | All | 3514219 | 3 minutes, 55 seconds | 48177072 | 288 | 1292 | 3309613 | 65541 | 114642 | 114638 | 15101
+10 | 10 | 1 | At the end | All | KILLED | KILLED | KILLED | KILLED | KILLED |   |   |   |   |  
+10 | 2 | 1 | At the end | All | 3456909 | 14 minutes, 13 seconds | 90123312 | 288 | 2533 | 3309613 | 65541 | 57332 | 57328 | 15101
+10 | 1 | 1 | At the end | Blocks of 32, no parallelization | 3549023 | 4 minutes, 1 second | 43986864 | 288 | 1295 | 2409961 | - | 114642 | 114638 | 15101
+10 | 1 | 1 | At the end | Blocks of 32, parallelized factor of 32 | 3450207 | 30 minutes, 51 seconds | 44161456 | 3264 | 2092 | 3311145 | - | 114642 | 114638 | 15101
+10 | 1 | 1 | At the end | All, but lowered number of things loaded | 654192 | 2 minutes, 42 seconds | 9080432 | 288 | 1292 | 505121 | 10006 | 114642 | 114638 | 15101
+
+Note, when we generated our 100x100 pixel image, we used this setup. (We did not get resource utilization data from this test, unfortunately). From this, you see the shortcomings of the scaling and potential optimization routes for future work.
+
+Variables |   |   |   |   | Overall Data |   |   |   |   | Important Data Components |   |   |   |  
+-- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | --
+**Parallelization of Row Loop** | **Parallelization of Column Loop** | **Paralleization of Square Root Loading** | **Times Output Data is Saved** | **SRAM Square Load Chunks** | **Total Cycles per Accel Block** | **Runtime** | **SRAM Load Square Map** | **Cycles/iter of Square Root Loading** | **Cycles/iter of Row Foreach** | **Cycles/iter of Column Foreach** | **Out Store Iterations**
+10 | 1 | 1 | At the end | All (required up to 65536) | 16684648 | 1 hour, 32 minutes, 24 seconds | 3309613 | 65541 | 11462211 | 1146218 | 1510001
+
+## How did this improve either Performance or Resource utilization (Area)?
+By saving data at the end, rather than after every instruction, we improved both the performance and resource utilization.
+
+By parallelizing the row and column loops, we modestly improved the performance (throughput).
+
+By reducing the number of squares loaded, we improved both the performance and resource utilization. However, this did not scale because it does not work at higher pixel counts.
+
+## If this makes tradeoffs between these two metrics, how did you choose a balance point?
+We largely focused on improving performance rather than resource utilization because our design is so time intensive to run. However, given the memory issues with synthesizing our design, we possibly needed to consider resource utilization more.
+
+# Code
+## How can we access your code?
+Here is our code: https://github.com/ecwood/ee109-final-project
+
+## How can we run your final design?
+Our final design uses Scalasim, based on the issues described [here](#issues-with-vcs-and-zcu).
+
+From the `ee109-final-project` directory, run
+```
+./run.sh > onehundred_by_onehundred.txt
+```
+
+to generate the data file with the shading data. This will be the shading data for one sphere (as generated by `shader_creator.py`, which creates the binary that is input into the accelerator). Then, run
+```
+python3 reformat_out_data.py
+```
+to view the output image. Some sample output images that we created are described in the [Results section](#results).
+
+# Results
 
 Here is the first image we created with the system, using a 10x10 pixel grid:
 ![image](https://github.com/ecwood/broadway_grosses/assets/36611732/b4bb39ff-c5e8-41c4-b2ec-e1ac27ad8ae1)
@@ -22,6 +80,13 @@ Here is the second image we created with the system, using a 50x50 pixel grid:
 And finally, after optimizing our code, here's the 100x100 pixel image we made (also using a larger sphere):
 ![image](https://github.com/ecwood/broadway_grosses/assets/36611732/29443cd5-b00e-4e97-b431-2de034252b72)
 
+Here's a 10x10 version with two spheres:
+![image](https://github.com/ecwood/broadway_grosses/assets/36611732/371ae6ac-4d0b-4134-a519-e6c170022570)
+
+Here's a 50x50 version with two spheres:
+![image](https://github.com/ecwood/broadway_grosses/assets/36611732/2719b33e-1bd2-434a-9314-2d4b20424583)
+
+# Issues with VCS and ZCU
 When I try to run the VCS compilation with the 10x10 matrix on Lagos, I get this error. This running it with 512g of memory in the `.sbtopts` file (`-Xmx512g`)
 
 ```
