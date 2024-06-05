@@ -35,8 +35,8 @@ BACKGROUND_COLOR = (2, 2, 2) # Gray
 UNSEEN_COLOR = (0, 0, 0) # Black
 BLUE_COLOR = (0, 0, 4) # Blue
 
-PIXEL_ROWS = 10
-PIXEL_COLS = 10
+PIXEL_ROWS = 100
+PIXEL_COLS = 100
 
 VECTOR_REGISTERS = {ZERO_REG: 0,
 					"out_color": 1,

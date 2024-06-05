@@ -16,11 +16,11 @@ import spatial.dsl._
   val num_instructions = 79
   val num_vec_elements = 3
   val num_bits = 32
-  val pixel_rows = 10
-  val pixel_columns = 10
+  val pixel_rows = 100
+  val pixel_columns = 100
   val registers = 32
   val num_operations = 19
-  val square_root_table_elements = 10001 // For square root calculating, up to 4096 but takes a lot longer
+  val square_root_table_elements = 65536 // For square root calculating, up to 4096 but takes a lot longer
   val square_root_table_cols = 2
 
   def main(args: Array[String]): Unit = {

@@ -7,10 +7,10 @@ ENDING_LINE = "ENDING DATA"
 
 REPLACE_STRING = "[[34minfo[0m] "
 
-FILENAME = "ten_by_ten.txt"
+FILENAME = "onehundred_by_onehundred.txt"
 
-NUM_ROWS = 10
-NUM_COLS = 10
+NUM_ROWS = 100
+NUM_COLS = 100
 NUM_ENTRIES = 4
 NUM_INSTRUCTIONS = 1
 
