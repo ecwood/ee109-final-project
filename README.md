@@ -49,7 +49,7 @@ By parallelizing the row and column loops, we modestly improved the performance 
 By reducing the number of squares loaded, we improved both the performance and resource utilization. However, this did not scale because it does not work at higher pixel counts.
 
 ## If this makes tradeoffs between these two metrics, how did you choose a balance point?
-We largely focused on improving performance rather than resource utilization because our design is so time intensive to run. However, given the memory issues with synthesizing our design, we possibly needed to consider resource utilization more.
+We largely focused on improving performance rather than resource utilization because our design is so time intensive to run. However, given the memory issues with synthesizing our design, we possibly needed to consider resource utilization more. Additionally, the two tended to change together with our design. For example, going from 1 to 2 parallelization increased the resource utilization (BRAM). It very modestly dropped the cycles/iter but quadrupled the runtime. In situations like this, we prioritized the runtime over the throughput cycles/iter, which matched the resource utilization trend.
 
 # Code
 ## How can we access your code?
