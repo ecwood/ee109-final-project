@@ -1,0 +1,527 @@
+[info] welcome to sbt 1.8.2 (Eclipse Adoptium Java 11.0.22)
+[info] loading project definition from /home/ewood/EE109/ee109-final-project/project
+[info] loading settings for project ee109-final-project from build.sbt ...
+[info] set current project to project1 (in build file:/home/ewood/EE109/ee109-final-project/)
+Run VCD: false
+Stage Args: 
+[[33mwarn[0m] Area model file VCS_Area.csv for target VCS was missing expected fields: 
+[[33mwarn[0m] BRAM
+[[34minfo[0m] Compiling RegisterOperations to /home/ewood/EE109/ee109-final-project/./gen/CS217/RegisterOperations/
+[[34minfo[0m] Compiling with arguments: --synth, --instrument, --runtime, --scalaExec, --scalaSimAccess=2, --countResources, --fpga, VCS, -v, --test
+[[34minfo[0m] Logging RegisterOperations to /home/ewood/EE109/ee109-final-project/./logs/CS217/RegisterOperations/
+[[34minfo[0m] Running in testbench mode
+[[34minfo[0m] emptiness (/home/ewood/bin/emptiness): Installed Version = 1.2, Required Version = 1.2
+[[33mwarn[0m] Error getting model for LUTs of SRAMNew node (SRAMNew_LUTs.pmml) at path env(SPATIAL_HOME) + /models/resources/SRAMNew_LUTs.pmml (/models/resources/SRAMNew_LUTs.pmml)!
+[[33mwarn[0m] Error getting model for FFs of SRAMNew node (SRAMNew_FFs.pmml) at path env(SPATIAL_HOME) + /models/resources/SRAMNew_FFs.pmml (/models/resources/SRAMNew_FFs.pmml)!
+[[33mwarn[0m] Error getting model for RAMB18 of SRAMNew node (SRAMNew_RAMB18.pmml) at path env(SPATIAL_HOME) + /models/resources/SRAMNew_RAMB18.pmml (/models/resources/SRAMNew_RAMB18.pmml)!
+[[33mwarn[0m] Error getting model for RAMB32 of SRAMNew node (SRAMNew_RAMB32.pmml) at path env(SPATIAL_HOME) + /models/resources/SRAMNew_RAMB32.pmml (/models/resources/SRAMNew_RAMB32.pmml)!
+[[33mwarn[0m] No model for LUTs of FixAdd node (FixAdd_LUTs.pmml) at path env(SPATIAL_HOME) + /models/resources/FixAdd_LUTs.pmml (/models/resources/FixAdd_LUTs.pmml)!
+[[33mwarn[0m] No model for FFs of FixAdd node (FixAdd_FFs.pmml) at path env(SPATIAL_HOME) + /models/resources/FixAdd_FFs.pmml (/models/resources/FixAdd_FFs.pmml)!
+[[33mwarn[0m] No model for RAMB18 of FixAdd node (FixAdd_RAMB18.pmml) at path env(SPATIAL_HOME) + /models/resources/FixAdd_RAMB18.pmml (/models/resources/FixAdd_RAMB18.pmml)!
+[[33mwarn[0m] No model for RAMB32 of FixAdd node (FixAdd_RAMB32.pmml) at path env(SPATIAL_HOME) + /models/resources/FixAdd_RAMB32.pmml (/models/resources/FixAdd_RAMB32.pmml)!
+[[33mwarn[0m] No model for LUTs of FixMul node (FixMul_LUTs.pmml) at path env(SPATIAL_HOME) + /models/resources/FixMul_LUTs.pmml (/models/resources/FixMul_LUTs.pmml)!
+[[33mwarn[0m] No model for FFs of FixMul node (FixMul_FFs.pmml) at path env(SPATIAL_HOME) + /models/resources/FixMul_FFs.pmml (/models/resources/FixMul_FFs.pmml)!
+[[33mwarn[0m] No model for RAMB18 of FixMul node (FixMul_RAMB18.pmml) at path env(SPATIAL_HOME) + /models/resources/FixMul_RAMB18.pmml (/models/resources/FixMul_RAMB18.pmml)!
+[[33mwarn[0m] No model for RAMB32 of FixMul node (FixMul_RAMB32.pmml) at path env(SPATIAL_HOME) + /models/resources/FixMul_RAMB32.pmml (/models/resources/FixMul_RAMB32.pmml)!
+[[33mwarn[0m] No model for LUTs of FixMod node (FixMod_LUTs.pmml) at path env(SPATIAL_HOME) + /models/resources/FixMod_LUTs.pmml (/models/resources/FixMod_LUTs.pmml)!
+[[33mwarn[0m] No model for FFs of FixMod node (FixMod_FFs.pmml) at path env(SPATIAL_HOME) + /models/resources/FixMod_FFs.pmml (/models/resources/FixMod_FFs.pmml)!
+[[33mwarn[0m] No model for RAMB18 of FixMod node (FixMod_RAMB18.pmml) at path env(SPATIAL_HOME) + /models/resources/FixMod_RAMB18.pmml (/models/resources/FixMod_RAMB18.pmml)!
+[[33mwarn[0m] No model for RAMB32 of FixMod node (FixMod_RAMB32.pmml) at path env(SPATIAL_HOME) + /models/resources/FixMod_RAMB32.pmml (/models/resources/FixMod_RAMB32.pmml)!
+[[34minfo[0m] Banking summary report written to /home/ewood/EE109/ee109-final-project/./gen/CS217/RegisterOperations//banking//decisions_47.html
+TODO: un-gut memory allocator
+[[34minfo[0m] Starting scala simulation
+[[34minfo[0m] Setup time: 444 ms
+[[34minfo[0m] 10000 elapsed [871ms]
+[[34minfo[0m] 20000 elapsed [361ms]
+[[34minfo[0m] 30000 elapsed [293ms]
+[[34minfo[0m] 40000 elapsed [278ms]
+[[34minfo[0m] 50000 elapsed [279ms]
+[[34minfo[0m] 60000 elapsed [279ms]
+[[34minfo[0m] 70000 elapsed [457ms]
+[[34minfo[0m] 80000 elapsed [278ms]
+[[34minfo[0m] 90000 elapsed [272ms]
+[[34minfo[0m] 100000 elapsed [267ms]
+[[34minfo[0m] 110000 elapsed [267ms]
+[[34minfo[0m] 120000 elapsed [264ms]
+[[34minfo[0m] 130000 elapsed [268ms]
+[[34minfo[0m] 140000 elapsed [269ms]
+[[34minfo[0m] 150000 elapsed [263ms]
+[[34minfo[0m] 160000 elapsed [486ms]
+[[34minfo[0m] 170000 elapsed [292ms]
+[[34minfo[0m] 180000 elapsed [293ms]
+[[34minfo[0m] 190000 elapsed [304ms]
+[[34minfo[0m] 200000 elapsed [299ms]
+[[34minfo[0m] 210000 elapsed [298ms]
+[[34minfo[0m] 220000 elapsed [303ms]
+[[34minfo[0m] 230000 elapsed [298ms]
+[[34minfo[0m] 240000 elapsed [297ms]
+[[34minfo[0m] 250000 elapsed [384ms]
+[[34minfo[0m] 260000 elapsed [304ms]
+[[34minfo[0m] 270000 elapsed [298ms]
+[[34minfo[0m] 280000 elapsed [299ms]
+[[34minfo[0m] 290000 elapsed [301ms]
+[[34minfo[0m] 300000 elapsed [294ms]
+[[34minfo[0m] 310000 elapsed [292ms]
+[[34minfo[0m] 320000 elapsed [297ms]
+[[34minfo[0m] 330000 elapsed [296ms]
+[[34minfo[0m] 340000 elapsed [295ms]
+[[34minfo[0m] 350000 elapsed [359ms]
+[[34minfo[0m] 360000 elapsed [412ms]
+[[34minfo[0m] 370000 elapsed [388ms]
+[[34minfo[0m] 380000 elapsed [394ms]
+[[34minfo[0m] 390000 elapsed [394ms]
+[[34minfo[0m] 400000 elapsed [291ms]
+[[34minfo[0m] 410000 elapsed [263ms]
+[[34minfo[0m] 420000 elapsed [258ms]
+[[34minfo[0m] 430000 elapsed [257ms]
+[[34minfo[0m] 440000 elapsed [316ms]
+[[34minfo[0m] 450000 elapsed [394ms]
+[[34minfo[0m] 460000 elapsed [388ms]
+[[34minfo[0m] 470000 elapsed [381ms]
+[[34minfo[0m] 480000 elapsed [256ms]
+[[34minfo[0m] 490000 elapsed [283ms]
+[[34minfo[0m] 500000 elapsed [258ms]
+[[34minfo[0m] 510000 elapsed [272ms]
+[[34minfo[0m] 520000 elapsed [321ms]
+[[34minfo[0m] 530000 elapsed [2099ms]
+[[34minfo[0m] 540000 elapsed [4560ms]
+[[34minfo[0m] 550000 elapsed [4409ms]
+[[34minfo[0m] 560000 elapsed [5419ms]
+[[34minfo[0m] 570000 elapsed [4457ms]
+[[34minfo[0m] 580000 elapsed [4410ms]
+[[34minfo[0m] 590000 elapsed [4537ms]
+[[34minfo[0m] 600000 elapsed [4742ms]
+[[34minfo[0m] 610000 elapsed [4403ms]
+[[34minfo[0m] 620000 elapsed [4571ms]
+[[34minfo[0m] 630000 elapsed [4401ms]
+[[34minfo[0m] 640000 elapsed [5003ms]
+[[34minfo[0m] 650000 elapsed [4409ms]
+[[34minfo[0m] 660000 elapsed [4474ms]
+[[34minfo[0m] 670000 elapsed [4481ms]
+[[34minfo[0m] 680000 elapsed [4399ms]
+[[34minfo[0m] 690000 elapsed [4475ms]
+[[34minfo[0m] 700000 elapsed [1799ms]
+[[34minfo[0m] Finished in 709020
+[[34minfo[0m] STARTING DATA
+[[34minfo[0m] 
+
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0.875 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 3.578125 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0.25 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0.078125 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2.390625 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 0 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 2 
+[[34minfo[0m] 
+
+[[34minfo[0m] ENDING DATA
+[[33mwarn[0m] Error getting model for LUTs of NoImpl node (NoImpl_LUTs.pmml) at path env(SPATIAL_HOME) + /models/resources/NoImpl_LUTs.pmml (/models/resources/NoImpl_LUTs.pmml)!
+[[33mwarn[0m] Error getting model for FFs of NoImpl node (NoImpl_FFs.pmml) at path env(SPATIAL_HOME) + /models/resources/NoImpl_FFs.pmml (/models/resources/NoImpl_FFs.pmml)!
+[[34minfo[0m] Completed
+[[32msuccess[0m] Total time: 202.6050 seconds
+Backend make in /home/ewood/EE109/ee109-final-project/./logs/CS217/RegisterOperations//make.log
+echo "Skipping Make"
+Backend run in /home/ewood/EE109/ee109-final-project/./logs/CS217/RegisterOperations//run.log
+echo "Skipping Run" 
+[info] RegisterOperations:
+[info] RegisterOperations
+[info] - should compile, run, and verify for backend CS217
+[info] Run completed in 3 minutes, 23 seconds.
+[info] Total number of tests run: 1
+[info] Suites: completed 1, aborted 0
+[info] Tests: succeeded 1, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+[success] Total time: 205 s (03:25), completed Jun 5, 2024, 5:10:07 AM
